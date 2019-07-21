@@ -1,0 +1,11 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2014 OpenWrt.org
+
+START=15
+
+boot() {
+	[ -e "/lib/netifd/proto/sim.sh" ] && . /lib/netifd/proto/sim.sh
+	sim=$(uci get network.MOBILE.sim)
+	echo "boot sim=$sim" >> /tmp/sim.log
+	[ "$sim" == "1" ] && setup_simcard $sim
+}

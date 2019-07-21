@@ -1,0 +1,33 @@
+Index: linux-4.9.152/arch/mips/ath79/mach-ap147.c
+===================================================================
+--- linux-4.9.152.orig/arch/mips/ath79/mach-ap147.c
++++ linux-4.9.152/arch/mips/ath79/mach-ap147.c
+@@ -26,6 +26,7 @@
+ #include "machtypes.h"
+ #include "pci.h"
+ 
++#define AP147_GPIO_SIM_SWITCH 1
+ #define AP147_GPIO_LED_WAN	4
+ #define AP147_GPIO_LED_LAN1	16
+ #define AP147_GPIO_LED_LAN2	15
+@@ -70,7 +71,11 @@ static struct gpio_led ap147_leds_gpio[]
+ 		.name		= "ap147:green:wan",
+ 		.gpio		= AP147_GPIO_LED_WAN,
+ 		.active_low	= 1,
+-	},
++	/*}, {
++		.name		= "ap147:sim",
++		.gpio		= AP147_GPIO_SIM_SWITCH,
++		.active_low	= 1,*/
++	},	
+ };
+ 
+ static struct gpio_keys_button ap147_gpio_keys[] __initdata = {
+@@ -88,6 +93,7 @@ static void __init ap147_setup(void)
+ {
+ 	u8 *art = (u8 *)KSEG1ADDR(0x1fff0000);
+ 
++	ath79_gpio_function_setup(AR934X_GPIO_FUNC_JTAG_DISABLE, 0);
+ 	ath79_register_m25p80(NULL);
+ 	ath79_register_leds_gpio(-1, ARRAY_SIZE(ap147_leds_gpio),
+ 				 ap147_leds_gpio);
