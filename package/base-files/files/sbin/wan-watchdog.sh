@@ -13,6 +13,6 @@ date >> /root/reboot.log
 					   
 ifdown MOBILE
 sleep 2
-usbreset 001/003
-sleep 10
+timeout -t 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
+sleep 30
 ifup MOBILE

@@ -6,6 +6,7 @@
 
 	. ../netifd-proto.sh
 	. ./ppp.sh
+	[ -e "/lib/netifd/proto/sim.sh" ] && . /lib/netifd/proto/sim.sh
 	init_proto "$@"
 }
 
@@ -18,6 +19,7 @@ proto_3g_init_config() {
 	proto_config_add_string "service"
 	proto_config_add_string "pincode"
 	proto_config_add_string "dialnumber"
+	proto_config_add_string "sim"
 }
 
 proto_3g_setup() {
@@ -29,7 +31,11 @@ proto_3g_setup() {
 	json_get_var service service
 	json_get_var pincode pincode
 	json_get_var dialnumber dialnumber
+	json_get_var sim sim
 
+	echo "3g.sh sim=$sim" >> /tmp/sim.log
+
+	[ -n "$sim" ] && setup_simcard $sim
 	[ -n "$dat_device" ] && device=$dat_device
 
 	device="$(readlink -f $device)"

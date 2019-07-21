@@ -23,6 +23,6 @@ setup_simcard()
 	[ "$status" == "$config" ] && return
 	echo "$config" > /sys/class/gpio/gpio1/value
 	sleep 2
-	timeout 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
+	timeout -t 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
 	sleep 60
 }
