@@ -4,7 +4,7 @@
 local map, section, net = ...
 
 local device, apn, pincode, username, password
-local auth, ipv6
+local auth, ipv6, simcard
 
 
 device = section:taboption("general", Value, "device", translate("Modem device"))
@@ -19,6 +19,10 @@ if device_suggestions then
 	end
 end
 
+simcard = section:taboption("general", ListValue, "sim", translate("Active SIM Card"))
+simcard.default="0"
+simcard:value("0", translate("Primary SIM1"))
+simcard:value("1", translate("Secondary SIM2"))
 
 apn = section:taboption("general", Value, "apn", translate("APN"))
 

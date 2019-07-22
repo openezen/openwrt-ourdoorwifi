@@ -6,6 +6,7 @@ local map, section, net = ...
 local device, apn, service, pincode, username, password, dialnumber
 local ipv6, maxwait, defaultroute, metric, peerdns, dns,
       keepalive_failure, keepalive_interval, demand
+local simcard
 
 
 device = section:taboption("general", Value, "device", translate("Modem device"))
@@ -22,6 +23,10 @@ if device_suggestions then
 	end
 end
 
+simcard = section:taboption("general", ListValue, "sim", translate("Active SIM Card"))
+simcard.default="0"
+simcard:value("0", translate("Primary SIM1"))
+simcard:value("1", translate("Secondary SIM2"))
 
 service = section:taboption("general", Value, "service", translate("Service Type"))
 service:value("", translate("-- Please choose --"))

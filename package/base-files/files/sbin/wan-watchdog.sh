@@ -9,10 +9,11 @@ do
 	tries=$((tries+1))
 done
 					 
-date >> /root/reboot.log
 					   
 ifdown MOBILE
 sleep 2
+sim=$(uci get network.MOBILE.sim)
+date >> /root/reboot.log
 timeout -t 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
 sleep 30
 ifup MOBILE
