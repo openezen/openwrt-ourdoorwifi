@@ -373,7 +373,7 @@
 		<div class="tr"><div class="td left" width="33%"><%:Architecture%></div><div class="td left"><%=pcdata(boardinfo.system or "?")%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Firmware Version%></div><div class="td left">
 			<%=pcdata(ver.distversion)%> /
-			<%=pcdata(ver.luciname)%> 
+			<%=pcdata(ver.luciname)%>
 		</div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Kernel Version%></div><div class="td left"><%=unameinfo.release or "?"%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Local Time%></div><div class="td left" id="localtime">-</div></div>
@@ -406,13 +406,14 @@
 <div class="cbi-section">
 	<h3><%:Network%></h3>
 
+  <div class="table" width="100%">
+		<div class="tr"><div class="td left" width="33%"><%:Active Connections%></div><div class="td left" id="conns">-</div></div>
+	</div>
+
 	<div id="upstream_status_table" class="network-status-table">
 		<p><em><%:Collecting data...%></em></p>
 	</div>
 
-	<div class="table" width="100%">
-		<div class="tr"><div class="td left" width="33%"><%:Active Connections%></div><div class="td left" id="conns">-</div></div>
-	</div>
 </div>
 
 <%
@@ -440,11 +441,6 @@
 	</div>
 </div>
 
-<div class="cbi-section">
-	<h3><%:Associated Stations%></h3>
-
-	<%+admin_network/wifi_assoclist%>
-</div>
 <% end %>
 
 <%-

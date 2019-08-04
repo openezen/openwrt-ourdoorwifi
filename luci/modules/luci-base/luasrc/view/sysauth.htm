@@ -9,17 +9,17 @@
 <form method="post" action="<%=pcdata(FULL_REQUEST_URI)%>">
 	<%- if fuser then %>
 		<div class="alert-message warning">
-			<p><%:Invalid username and/or password! Please try again.%></p>
+			<p><%:Invalid password! Please try again.%></p>
 		</div>
 	<% end -%>
 
 	<div class="cbi-map">
 		<h2 name="content"><%:Authorization Required%></h2>
 		<div class="cbi-map-descr">
-			<%:Please enter your username and password.%>
+			<%:Please enter your router password!%>
 		</div>
 		<div class="cbi-section"><div class="cbi-section-node">
-			<div class="cbi-value">
+			<div class="cbi-value" style="display:none">
 				<label class="cbi-value-title"><%:Username%></label>
 				<div class="cbi-value-field">
 					<input class="cbi-input-text" type="text" name="luci_username" value="<%=duser%>" />
@@ -36,9 +36,9 @@
 
 	<div class="cbi-page-actions">
 		<input type="submit" value="<%:Login%>" class="cbi-button cbi-button-apply" />
-		<input type="reset" value="<%:Reset%>" class="cbi-button cbi-button-reset" />
 	</div>
 </form>
+
 <script type="text/javascript">//<![CDATA[
 	var input = document.getElementsByName('luci_password')[0];
 	if (input)

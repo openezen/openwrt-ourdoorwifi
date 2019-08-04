@@ -140,7 +140,7 @@
 					var text = G.createElementNS('http://www.w3.org/2000/svg', 'text');
 						text.setAttribute('x', i + 5);
 						text.setAttribute('y', 15);
-						text.setAttribute('style', 'fill:#eee; font-size:9pt; font-family:sans-serif; text-shadow:1px 1px 1px #000');
+						text.setAttribute('style', 'font-size:9pt; font-family:sans-serif;');
 						text.appendChild(G.createTextNode(Math.round((width - i) / step / 60) + 'm'));
 
 					label_25.parentNode.appendChild(line);
@@ -157,7 +157,7 @@
 					var text2 = G2.createElementNS('http://www.w3.org/2000/svg', 'text');
 						text2.setAttribute('x', i + 5);
 						text2.setAttribute('y', 15);
-						text2.setAttribute('style', 'fill:#eee; font-size:9pt; font-family:sans-serif; text-shadow:1px 1px 1px #000');
+						text2.setAttribute('style', 'font-size:9pt; font-family:sans-serif;');
 						text2.appendChild(G.createTextNode(Math.round((width - i) / step / 60) + 'm'));
 
 					label_25_2.parentNode.appendChild(line2);
@@ -328,7 +328,7 @@
 
 <div class="table" style="width:100%; table-layout:fixed" cellspacing="5">
 	<div class="tr">
-		<div class="td" style="text-align:right; vertical-align:top"><strong style="border-bottom:2px solid blue"><%:Signal:%></strong></div>
+		<div class="td" style="text-align:right; vertical-align:top"><strong style="border-bottom:1px solid blue"><%:Signal:%></strong></div>
 		<div class="td" id="rssi_bw_cur">0 <%:dBm%></div>
 
 		<div class="td" style="text-align:right; vertical-align:top"><strong><%:Average:%></strong></div>
@@ -338,7 +338,7 @@
 		<div class="td" id="rssi_bw_peak">0 <%:dBm%></div>
 	</div>
 	<div class="tr">
-		<div class="td" style="text-align:right; vertical-align:top"><strong style="border-bottom:2px solid red"><%:Noise:%></strong></div>
+		<div class="td" style="text-align:right; vertical-align:top"><strong style="border-bottom:1px solid red"><%:Noise:%></strong></div>
 		<div class="td" id="noise_bw_cur">0 <%:dBm%></div>
 
 		<div class="td" style="text-align:right; vertical-align:top"><strong><%:Average:%></strong></div>
@@ -357,7 +357,7 @@
 
 <div class="table" style="width:100%; table-layout:fixed" cellspacing="5">
 	<div class="tr">
-		<div class="td" style="text-align:right; vertical-align:top"><strong style="border-bottom:2px solid green"><%:Phy Rate:%></strong></div>
+		<div class="td" style="text-align:right; vertical-align:top"><strong style="border-bottom:1px solid green"><%:Phy Rate:%></strong></div>
 		<div class="td" id="rate_bw_cur">0 MBit/s</div>
 
 		<div class="td" style="text-align:right; vertical-align:top"><strong><%:Average:%></strong></div>

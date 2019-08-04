@@ -9,7 +9,7 @@ local nw  = require "luci.model.network"
 
 local s, m, period, warning, date, days, interval, ifaces, subnets, limit, prealloc, compress, generations, commit, refresh, directory, protocols
 
-m = Map("nlbwmon", translate("Netlink Bandwidth Monitor - Configuration"),
+m = Map("nlbwmon", translate("Configuration"),
 	translate("The Netlink Bandwidth Monitor (nlbwmon) is a lightweight, efficient traffic accounting program keeping track of bandwidth usage per host and protocol."))
 
 nw.init(luci.model.uci.cursor_state())
@@ -49,7 +49,7 @@ end
 
 
 warning = s:taboption("general", DummyValue, "_warning", translate("Warning"))
-warning.default = translatef("Changing the accounting interval type will invalidate existing databases!<br /><strong><a href=\"%s\">Download backup</a></strong>.", luci.dispatcher.build_url("admin/nlbw/backup"))
+warning.default = translatef("Changing the accounting interval type will invalidate existing databases!<br /><strong><a href=\"%s\">Download backup</a></strong>.", luci.dispatcher.build_url("admin/services/nlbw/backup"))
 warning.rawhtml = true
 
 if (m.uci:get_first("nlbwmon", "nlbwmon", "database_interval") or ""):match("^%d%d%d%d-%d%d-%d%d/%d+$") then
