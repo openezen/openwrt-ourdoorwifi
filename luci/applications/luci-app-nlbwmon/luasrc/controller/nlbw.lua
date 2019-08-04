@@ -4,16 +4,24 @@
 module("luci.controller.nlbw", package.seeall)
 
 function index()
-	entry({"admin", "nlbw"}, firstchild(), _("Bandwidth Monitor"), 80)
-	entry({"admin", "nlbw", "display"}, template("nlbw/display"), _("Display"), 1)
-	entry({"admin", "nlbw", "config"}, cbi("nlbw/config"), _("Configuration"), 2)
-	entry({"admin", "nlbw", "backup"}, template("nlbw/backup"), _("Backup"), 3)
-	entry({"admin", "nlbw", "data"}, call("action_data"), nil, 4)
-	entry({"admin", "nlbw", "list"}, call("action_list"), nil, 5)
-	entry({"admin", "nlbw", "ptr"}, call("action_ptr"), nil, 6).leaf = true
-	entry({"admin", "nlbw", "download"}, call("action_download"), nil, 7)
-	entry({"admin", "nlbw", "restore"}, post("action_restore"), nil, 8)
-	entry({"admin", "nlbw", "commit"}, call("action_commit"), nil, 9)
+	entry({"admin", "services", "nlbw"}, firstchild(),
+	_("Bandwidth Monitor"), 80)
+
+	entry({"admin", "services", "nlbw", "display"}, template("nlbw/display"),
+	_("Status"), 1).leaf = true
+
+	entry({"admin", "services", "nlbw", "config"}, cbi("nlbw/config"),
+	_("Configuration"), 2).leaf = true
+
+	entry({"admin", "services", "nlbw", "backup"}, template("nlbw/backup"),
+	_("Backup"), 3).leaf = true
+
+	entry({"admin", "services", "nlbw", "data"}, call("action_data"), nil, 4)
+	entry({"admin", "services", "nlbw", "list"}, call("action_list"), nil, 5)
+	entry({"admin", "services", "nlbw", "ptr"}, call("action_ptr"), nil, 6).leaf = true
+	entry({"admin", "services", "nlbw", "download"}, call("action_download"), nil, 7)
+	entry({"admin", "services", "nlbw", "restore"}, post("action_restore"), nil, 8)
+	entry({"admin", "services", "nlbw", "commit"}, call("action_commit"), nil, 9)
 end
 
 local function exec(cmd, args, writer)
@@ -221,6 +229,6 @@ function action_commit()
 	local http = require "luci.http"
 	local disp = require "luci.dispatcher"
 
-	http.redirect(disp.build_url("admin/nlbw/display"))
+	http.redirect(disp.build_url("admin/services/nlbw/display"))
 	exec("/usr/sbin/nlbw", { "-c", "commit" })
 end

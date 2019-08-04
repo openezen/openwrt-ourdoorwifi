@@ -195,7 +195,7 @@
 
 <%+header%>
 
-<script type="text/javascript" src="<%=resource%>/nlbw.chart.min.js"></script>
+<script type="text/javascript" src="<%=resource%>/nlbw.chart.min.js?v=git-19.160.43583-2bbc013"></script>
 <script type="text/javascript">//<![CDATA[
 
 var chartRegistry = {},
@@ -394,7 +394,7 @@ function oui(mac) {
 
 function fetchData(period)
 {
-	XHR.get('<%=url("admin/nlbw/data")%>', { period: period, group_by: 'family,mac,ip,layer7', order_by: '-rx_bytes,-tx_bytes' }, function(xhr, res) {
+	XHR.get('<%=url("admin/services/nlbw/data")%>', { period: period, group_by: 'family,mac,ip,layer7', order_by: '-rx_bytes,-tx_bytes' }, function(xhr, res) {
 		if (res !== null && typeof(res) === 'object' && typeof(res.columns) === 'object' && typeof(res.data) === 'object')
 			trafficData = res;
 
@@ -409,7 +409,7 @@ function fetchData(period)
 		renderLayer7Data();
 		renderIPv6Data();
 
-		XHR.get('<%=url("admin/nlbw/ptr")%>/' + ipAddrs.join('/'), null, function(xhr, res) {
+		XHR.get('<%=url("admin/services/nlbw/ptr")%>/' + ipAddrs.join('/'), null, function(xhr, res) {
 			if (res !== null && typeof(res) === 'object')
 				hostNames = res;
 		});
@@ -633,7 +633,7 @@ function renderHostData()
 		var cell = table.insertRow(-1).insertCell(-1);
 
 		cell.setAttribute('colspan', 6);
-		cell.innerHTML = '<em><%:No data recorded yet.%> <a href="<%=url("admin/nlbw/commit")%>"><%:Force reload…%></a></em>';
+		cell.innerHTML = '<em><%:No data recorded yet.%> <a href="<%=url("admin/services/nlbw/commit")%>"><%:Force reload…%></a></em>';
 	}
 
 	pie('traf-pie', trafData);
@@ -693,7 +693,7 @@ function renderLayer7Data()
 		var cell = table.insertRow(-1).insertCell(-1);
 
 		cell.setAttribute('colspan', 6);
-		cell.innerHTML = '<em><%:No data recorded yet.%> <a href="<%=url("admin/nlbw/commit")%>"><%:Force reload…%></a></em>';
+		cell.innerHTML = '<em><%:No data recorded yet.%> <a href="<%=url("admin/services/nlbw/commit")%>"><%:Force reload…%></a></em>';
 	}
 
 	pie('layer7-rx-pie', rxData);
@@ -811,7 +811,7 @@ function renderIPv6Data()
 		var cell = table.insertRow(-1).insertCell(-1);
 
 		cell.setAttribute('colspan', 7);
-		cell.innerHTML = '<em><%:No data recorded yet.%> <a href="<%=url("admin/nlbw/commit")%>"><%:Force reload…%></a></em>';
+		cell.innerHTML = '<em><%:No data recorded yet.%> <a href="<%=url("admin/services/nlbw/commit")%>"><%:Force reload…%></a></em>';
 	}
 
 	var shareData = [], hostsData = [];
@@ -903,7 +903,7 @@ function bubbleDismiss()
 
 <p>
 	<%:Select accounting period:%>
-	<select id="nlbw.period" style="display:none"></select>
+	<select id="nlbw.period"></select>
 </p>
 
 <hr />
@@ -1012,10 +1012,10 @@ function bubbleDismiss()
 
 <div class="cbi-section" id="container.nlbw.export" style="display:none">
 	<ul>
-		<li><a href="<%=url('admin/nlbw/data')%>?type=csv&#38;group_by=mac&#38;order_by=-rx,-tx"><%:CSV, grouped by MAC%></a></li>
-		<li><a href="<%=url('admin/nlbw/data')%>?type=csv&#38;group_by=ip&#38;order_by=-rx,-tx"><%:CSV, grouped by IP%></a></li>
-		<li><a href="<%=url('admin/nlbw/data')%>?type=csv&#38;group_by=layer7&#38;order_by=-rx,-tx"><%:CSV, grouped by protocol%></a></li>
-		<li><a href="<%=url('admin/nlbw/data')%>?type=json"><%:JSON dump%></a></li>
+		<li><a href="<%=url('admin/services/nlbw/data')%>?type=csv&#38;group_by=mac&#38;order_by=-rx,-tx"><%:CSV, grouped by MAC%></a></li>
+		<li><a href="<%=url('admin/services/nlbw/data')%>?type=csv&#38;group_by=ip&#38;order_by=-rx,-tx"><%:CSV, grouped by IP%></a></li>
+		<li><a href="<%=url('admin/services/nlbw/data')%>?type=csv&#38;group_by=layer7&#38;order_by=-rx,-tx"><%:CSV, grouped by protocol%></a></li>
+		<li><a href="<%=url('admin/services/nlbw/data')%>?type=json"><%:JSON dump%></a></li>
 	</ul>
 </div>
 
@@ -1025,7 +1025,7 @@ function bubbleDismiss()
 	cbi_t_add('nlbw', 'ipv6');
 	cbi_t_add('nlbw', 'export');
 
-	XHR.get('<%=url("admin/nlbw/list")%>', null, function(xhr, res) {
+	XHR.get('<%=url("admin/services/nlbw/list")%>', null, function(xhr, res) {
 
 		if (res !== null && typeof(res) === 'object' && res.length > 0) {
 			trafficPeriods = res;
