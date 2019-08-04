@@ -120,6 +120,11 @@
 							);
 						}
 						
+						if (ifc.simcard)
+						{                        
+							html += String.format('<strong><%:SIM CARD%>:</strong> %s<br />', ifc.simcard);
+						}
+						
 						if (ifc.qmiinfo)
 						{                        
 							html += String.format('<strong><%:QMI%>:</strong> %s<br />', ifc.qmiinfo);

@@ -227,6 +227,7 @@ function iface_status(ifaces)
 				tx_bytes   = device:tx_bytes(),
 				rx_packets = device:rx_packets(),
 				tx_packets = device:tx_packets(),
+				simcard	   = net:simcard(),
 
 				subdevices = { }
 			}

@@ -1313,6 +1313,20 @@ function protocol.adminlink(self)
 	return stat and dsp.build_url("admin", "network", "network", self.sid)
 end
 
+function protocol.simcard(self)
+	if self.sid ~= "MOBILE" then
+		return nil
+	end
+
+	local sim = _uci:get("network", self.sid, "sim")
+
+	if sim and sim == "1" then
+		return "Secondary SIM2"
+	else
+		return "Primary SIM1"
+	end
+end
+
 
 interface = utl.class()
 
