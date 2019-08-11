@@ -471,13 +471,18 @@ function wifi.getiwinfo(ifname)
 end
 
 function getqmiinfo(device)
-	local ret = luci.util.exec("uqmi -d /dev/cdc-wdm0  --get-serving-system")
+    local rv = {}
+    local ret = luci.util.exec("uqmi -d /dev/cdc-wdm0  --get-serving-system")
 	local system = js.parse(ret)
 
 	ret = luci.util.exec("uqmi -d /dev/cdc-wdm0  --get-signal-info")
 	local signal = js.parse(ret) 
-      
-return system.plmn_description, signal.rsrp, signal.type
+    rv = {
+        plmn = system.plmn_description,
+        rsrp = signal.rsrp,
+        isptype = signal.type,
+    }
+    return rv
 end
 
 init = {}

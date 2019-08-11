@@ -234,8 +234,8 @@ function iface_status(ifaces)
 
 			if data.proto == "qmi" and data.is_up then
 				local qmiinfo
-				local plmn,rsrp,qmitype=luci.sys.getqmiinfo(data.device)
-				qmiinfo = string.format((plmn or "UNKNOWN") .. "  " .. (string.upper(qmitype or "UNKNOWN") ) .. "  RSSI:" .. (rsrp or "No signal"))
+				local rv = luci.sys.getqmiinfo(data.device)
+				qmiinfo = string.format((rv.plmn or "UNKNOWN") .. "  " .. (string.upper(rv.isptype or "UNKNOWN") ) .. "  RSSI:" .. (rv.rsrp or "No signal"))
 				data.qmiinfo = qmiinfo
 			end
 
