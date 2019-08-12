@@ -8,6 +8,7 @@ local ipv6, maxwait, defaultroute, metric, peerdns, dns,
       keepalive_failure, keepalive_interval, demand
 local simcard
 
+local simnum = luci.sys.get_simcard_num()
 
 device = section:taboption("general", Value, "device", translate("Modem device"))
 device.rmempty = false
@@ -22,11 +23,12 @@ if device_suggestions then
 		device:value(node)
 	end
 end
-
-simcard = section:taboption("general", ListValue, "sim", translate("Active SIM Card"))
-simcard.default="0"
-simcard:value("0", translate("Primary SIM1"))
-simcard:value("1", translate("Secondary SIM2"))
+if simnum >= 2 then
+	simcard = section:taboption("general", ListValue, "sim", translate("Active SIM Card"))
+	simcard.default="0"
+	simcard:value("0", translate("Primary SIM1"))
+	simcard:value("1", translate("Secondary SIM2"))
+end
 
 service = section:taboption("general", Value, "service", translate("Service Type"))
 service:value("", translate("-- Please choose --"))

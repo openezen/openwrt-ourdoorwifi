@@ -1,0 +1,2 @@
+config product hardware
+	option simcard_num '1'

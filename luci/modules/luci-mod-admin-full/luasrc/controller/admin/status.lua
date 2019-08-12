@@ -17,6 +17,7 @@ function index()
 	entry({"admin", "status", "processes"}, form("admin_status/processes"), _("Processes"), 6)
 
 	entry({"admin", "status", "realtime"}, alias("admin", "status", "realtime", "load"), _("Realtime Graphs"), 7)
+	entry({"admin", "status", "qmi"}, template("admin_status/qmi"), _("Qmi info"), 8)
 
 	entry({"admin", "status", "realtime", "load"}, template("admin_status/load"), _("Load"), 1).leaf = true
 	entry({"admin", "status", "realtime", "load_status"}, call("action_load")).leaf = true

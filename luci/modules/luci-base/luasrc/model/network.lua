@@ -1314,6 +1314,11 @@ function protocol.adminlink(self)
 end
 
 function protocol.simcard(self)
+	local simnum = _uci:get("productinfo", "hardware", "simcard_num")
+	if simnum and tonumber(simnum) <= 1 then
+		return nil
+	end
+
 	if self.sid ~= "MOBILE" then
 		return nil
 	end
