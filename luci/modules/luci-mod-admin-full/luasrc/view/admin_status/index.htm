@@ -362,6 +362,33 @@
 	);
 //]]></script>
 
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.index-column {
+  float: left;
+  width: 50%;
+  padding: 0 15px 0 0;
+}
+
+.index-row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media screen and (max-width: 600px) {
+  .index-column {
+    width: 100%;
+  }
+}
+</style>
+
+<div class="index-row">
+
+<div class="index-column">
 <h2 name="content"><%:Status%></h2>
 
 <div class="cbi-section">
@@ -390,6 +417,107 @@
 		<div class="tr"><div class="td left" width="33%"><%:Free%></div><div class="td left" id="memfree">-</div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Buffered%></div><div class="td left" id="membuff">-</div></div>
 	</div>
+</div>
+</div>
+
+<div class="index-column">
+
+  <%
+  	local simnum = luci.sys.get_simcard_num()
+  	local qmiinfo = luci.sys.get_all_qmiinfo()
+  	local simcard = luci.sys.get_simcard()
+  -%>
+
+  <%+header%>
+
+  <script type="text/javascript">//<![CDATA[
+  	function progressbar(v, m)
+  	{
+  		var vn = parseInt(v) || 0;
+  		var mn = parseInt(m) || 100;
+  		var pc = Math.floor((100 / mn) * vn);
+
+  		return String.format(
+  			'<div style="width:100%%; max-width:200px; position:relative; border:1px solid #999999">' +
+  				'<div style="background-color:#CCCCCC; width:%d%%; height:15px">' +
+  					'<div style="position:absolute; left:0; top:0; text-align:center; width:100%%; color:#000000">' +
+  						'<small>%s / %s (%d%%)</small>' +
+  					'</div>' +
+  				'</div>' +
+  			'</div>', pc, v, m, pc
+  		);
+  	}
+
+  	function labelList(items, offset) {
+  		var rv = [ ];
+
+  		for (var i = offset || 0; i < items.length; i += 2) {
+  			var label = items[i],
+  			    value = items[i+1];
+
+  			if (value === undefined || value === null)
+  				continue;
+
+  			if (label)
+  				rv.push(E('strong', [label, ': ']));
+
+  			rv.push(value, E('br'));
+  		}
+
+  		return rv;
+  	}
+
+  	function renderBox(title, active, childs) {
+  		childs = childs || [];
+  		childs.unshift(E('span', labelList(arguments, 3)));
+
+  		return E('div', { class: 'ifacebox' }, [
+  			E('div', { class: 'ifacebox-head center ' + (active ? 'active' : '') },
+  				E('strong', title)),
+  			E('div', { class: 'ifacebox-body left' }, childs)
+  		]);
+  	}
+
+  	function renderBadge(icon, title) {
+  		return E('span', { class: 'ifacebadge' }, [
+  			E('img', { src: icon, title: title || '' }),
+  			E('span', labelList(arguments, 2))
+  		]);
+  	}
+
+	function reload(){
+		location.reload();
+	}
+
+  //]]></script>
+
+  <h2 name="content"><%:Device%></h2>
+
+  <div class="cbi-section">
+	<h3><input type="button" class="cbi-button cbi-button-apply" value="REACQUIRE" onclick="reload()"> </h3>
+  	<div class="table" width="100%">
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left"><%=pcdata(qmiinfo.model) or "Unknown"%></div></div>
+  		<% if simcard then %>
+      		<div class="tr"><div class="td left" width="33%"><%:SIM Card%></div><div class="td left"><%=pcdata(qmiinfo.rssi) or "Unknown"%></div></div>
+  		<% end %>
+  		<div class="tr"><div class="td left" width="33%"><%:IMEI Number%></div><div class="td left"><%=pcdata(qmiinfo.imei) or "Unknown"%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Operator%></div><div class="td left"><%=pcdata(qmiinfo.plmn_desc) or "Unknown"%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Connection%></div><div style="text-transform: capitalize;" class="td left"><%=pcdata(qmiinfo.status) or "Unknown"%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Network Band%></div><div class="td left"><%=pcdata(qmiinfo.band)%></div></div>
+      <div class="tr"><div class="td left" width="33%"><%:Roaming%></div><div style="text-transform: capitalize;"  class="td left"><%=pcdata(qmiinfo.roam) or "Unknown"%></div></div>
+      <div class="tr"><div class="td left" width="33%"><%:Global Cell ID%></div><div class="td left"><%=pcdata(qmiinfo.cellid) or "Unknown"%></div></div>
+      <div class="tr"><div class="td left" width="33%"><%:Location Area Code%></div><div class="td left"><%=pcdata(qmiinfo.areaid) or "Unknown"%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:MCC%></div><div class="td left"><%=pcdata(qmiinfo.plmn_mcc or "Unknown")%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:MNC%></div><div class="td left"><%=pcdata(qmiinfo.plmn_mnc or "Unknown")%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:RSRP (Signal Strength)%></div><div class="td left"><%=pcdata(qmiinfo.rsrp or "Unknown")%></div></div>
+      <div class="tr"><div class="td left" width="33%"><%:RSRQ%></div><div class="td left"><%=pcdata(qmiinfo.rsrq or "Unknown")%></div></div>
+      <div class="tr"><div class="td left" width="33%"><%:RSSI%></div><div class="td left"><%=pcdata(qmiinfo.rssi or "Unknown")%></div></div>
+      <div class="tr"><div class="td left" width="33%"><%:SNR%></div><div class="td left"><%=pcdata(qmiinfo.snr or "Unknown")%></div></div>
+  	</div>
+  </div>
+
+</div>
+
 </div>
 
 <% if swapinfo.total > 0 then %>

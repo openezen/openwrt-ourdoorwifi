@@ -476,7 +476,7 @@ function get_simcard_num()
 	if num then
 		return tonumber(num)
 	else
-		return 0
+		return 1
 	end
 end
 
@@ -499,37 +499,57 @@ end
 
 
 function get_all_qmiinfo(device)
-	local ret = {}
+	local qmiinfo = {}
+	local device = "/dev/cdc-wdm0"
+	local bandtype
 
-    local ret = luci.util.exec("timeout -t 1 uqmi -s -d /dev/cdc-wdm0  --get-serving-system")
+    local ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device  .." --get-serving-system")
 	local system = js.parse(ret)
 
-	ret = luci.util.exec("timeout -t 1 uqmi -s -d /dev/cdc-wdm0  --get-signal-info")
+	ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device .. " --get-signal-info")
 	local signal = js.parse(ret) 
-	ret = luci.util.exec("timeout -t 1 uqmi -s -d /dev/cdc-wdm0  --get-imei")
+	ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device .. " --get-imei")
 	local imei = js.parse(ret) 
---[[	ret = luci.util.exec("uqmi -s -d /dev/cdc-wdm0  --get-imsi")
-	local imsi = js.parse(ret) 
-	ret = luci.util.exec("uqmi -s -d /dev/cdc-wdm0  --get-iccid")
-	local iccid = js.parse(ret)  ]] -- 
-	ret = luci.util.exec("timeout -t 1 uqmi -s -d /dev/cdc-wdm0  --get-capabilities")
-	local caps = js.parse(ret)
+	ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device .. " --get-data-status")
+	local status = js.parse(ret) 
+	ret = luci.util.exec("qmicli -d " .. device .. " --dms-get-revision | grep Revision")
+	local model = ret:match("Revision: '(%w+)[%s%']")
+	ret = luci.util.exec("qmicli -d " .. device .. " --nas-get-rf-band-info | grep \"Active Band Class\"")
+	local band = ret:match("Active Band Class: '([%w-]+)'")
+	ret = luci.util.exec("qmicli -d " .. device .. " --wds-get-autoconnect-settings | grep Roaming")
+	local roam = ret:match("Roaming: '([%w-]+)'")
+	ret = luci.util.exec("qmicli -d " .. device .. " --nas-get-system-info | grep \"Cell ID\"")
+	local cellid = ret:match("Cell ID: '([%w-]+)'")
+	ret = luci.util.exec("qmicli -d " .. device .. " --nas-get-serving-system | grep \"3GPP location area code\"")
+	local areaid = ret:match("3GPP location area code: '([%w-]+)'")
+	ret = luci.util.exec("qmicli -d " .. device .. " --nas-get-signal-info | grep \"SNR\"")
+	local snr = ret:match("SNR: '([%w%s-%.]+)'")
 
-	ret = {
+	if band and signal.type then
+		bandtype = signal.type:upper() .. "  " ..band:upper()
+	else
+		bandtype = nil;
+	end
+
+	qmiinfo = {
 		plmn_mcc = system.plmn_mcc,
 		plmn_mnc = system.plmn_mnc,
-		plmn_desc = system.plmn_desc,
-		rssi = signal.rssi and signal.rssi .. " dbm" or nil,
-		rsrq = signal.rsrq and signal.rsrq .. " dbm" or nil,
-		rsrp = signal.rsrp and signal.rsrp .. " dbm" or nil,
-		snr = signal.snr and signal.snr .. " db" or nil,
+		plmn_desc = system.plmn_description,
+		model = model,
+		status = status,
+		roam = roam,
+		band = bandtype,
+		rssi = signal.rssi and signal.rssi .. " dBm" or nil,
+		rsrq = signal.rsrq and signal.rsrq .. " dBm" or nil,
+		rsrp = signal.rsrp and signal.rsrp .. " dBm" or nil,
+		snr = snr,
 		imei = imei,
-		txrate = caps.max_tx_channel_rate and caps.max_tx_channel_rate/1000/1000 .. " Mbits" or nil,
-		rxrate = caps.max_rx_channel_rate and caps.max_rx_channel_rate/1000/1000 .. " Mbits" or nil,
+		cellid = cellid,
+		areaid = areaid,
         isptype = signal.type,
 	}
 
-	return ret
+	return qmiinfo
 end
 
 function getqmiinfo(device)
