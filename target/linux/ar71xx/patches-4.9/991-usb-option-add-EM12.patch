@@ -1,0 +1,47 @@
+Index: linux-4.9.152/drivers/usb/serial/option.c
+===================================================================
+--- linux-4.9.152.orig/drivers/usb/serial/option.c	2019-01-22 23:10:57.000000000 -0800
++++ linux-4.9.152/drivers/usb/serial/option.c	2019-08-18 06:41:35.673248429 -0700
+@@ -249,6 +249,7 @@
+ #define QUECTEL_PRODUCT_EC25			0x0125
+ #define QUECTEL_PRODUCT_BG96			0x0296
+ #define QUECTEL_PRODUCT_EP06			0x0306
++#define QUECTEL_PRODUCT_EM12            0x0512
+ 
+ #define CMOTECH_VENDOR_ID			0x16d8
+ #define CMOTECH_PRODUCT_6001			0x6001
+@@ -564,6 +565,7 @@
+ /* Interface is reserved */
+ #define RSVD(ifnum)	((BIT(ifnum) & 0xff) << 0)
+ 
++#define NUMEP2      BIT(16)
+ 
+ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_COLT) },
+@@ -1084,8 +1086,12 @@
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
+ 	  .driver_info = RSVD(4) },
+-	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06),
+-	  .driver_info = RSVD(4) | RSVD(5) },
++    { USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
++      .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
++    { USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0)  },
++    { USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
++      .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
++    { USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0)  },
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_CMU_300) },
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6003),
+@@ -2031,7 +2037,10 @@
+ 	    iface_desc->bInterfaceClass != USB_CLASS_CDC_DATA)
+ 		return -ENODEV;
+ 
+-	/* Store the device flags so we can use them during attach. */
++    if (device_flags & NUMEP2 && iface_desc->bNumEndpoints != 2)
++        return -ENODEV;
++
++    /* Store the device flags so we can use them during attach. */
+ 	usb_set_serial_data(serial, (void *)device_flags);
+ 
+ 	return 0;
