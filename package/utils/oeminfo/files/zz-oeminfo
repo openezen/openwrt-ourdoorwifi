@@ -1,0 +1,5 @@
+#!/bin/sh
+
+[ -e "/usr/lib/lua/oeminfo.lua" ] && {
+	lua /usr/lib/lua/oeminfo.lua
+}

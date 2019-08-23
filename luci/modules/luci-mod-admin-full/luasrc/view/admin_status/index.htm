@@ -398,10 +398,7 @@
 		<div class="tr"><div class="td left" width="33%"><%:Hostname%></div><div class="td left"><%=luci.sys.hostname() or "?"%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Model%></div><div class="td left"><%=pcdata(boardinfo.model or "?")%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Architecture%></div><div class="td left"><%=pcdata(boardinfo.system or "?")%></div></div>
-		<div class="tr"><div class="td left" width="33%"><%:Firmware Version%></div><div class="td left">
-			<%=pcdata(ver.distversion)%> /
-			<%=pcdata(ver.luciname)%>
-		</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Firmware Version%></div><div class="td left"><%=pcdata(ver.distversion)%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Kernel Version%></div><div class="td left"><%=unameinfo.release or "?"%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Local Time%></div><div class="td left" id="localtime">-</div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Uptime%></div><div class="td left" id="uptime">-</div></div>
@@ -503,8 +500,8 @@
   		<div class="tr"><div class="td left" width="33%"><%:IMEI Number%></div><div class="td left"><%=pcdata(qmiinfo.imei) or "Unknown"%></div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Operator%></div><div class="td left"><%=pcdata(qmiinfo.plmn_desc) or "Unknown"%></div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Connection%></div><div style="text-transform: capitalize;" class="td left"><%=pcdata(qmiinfo.status) or "Unknown"%></div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:Network Band%></div><div class="td left"><%=pcdata(qmiinfo.band)%></div></div>
-      <div class="tr"><div class="td left" width="33%"><%:Roaming%></div><div style="text-transform: capitalize;"  class="td left"><%=pcdata(qmiinfo.roam) or "Unknown"%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Network Band%></div><div class="td left"><%=pcdata(qmiinfo.band) or "Unknown"%></div></div>
+      <div class="tr"><div class="td left" width="33%"><%:Roaming%></div><div style="text-transform: capitalize;" class="td left"><%=pcdata(qmiinfo.roam) or "Unknown"%></div></div>
       <div class="tr"><div class="td left" width="33%"><%:Global Cell ID%></div><div class="td left"><%=pcdata(qmiinfo.cellid) or "Unknown"%></div></div>
       <div class="tr"><div class="td left" width="33%"><%:Location Area Code%></div><div class="td left"><%=pcdata(qmiinfo.areaid) or "Unknown"%></div></div>
   		<div class="tr"><div class="td left" width="33%"><%:MCC%></div><div class="td left"><%=pcdata(qmiinfo.plmn_mcc or "Unknown")%></div></div>

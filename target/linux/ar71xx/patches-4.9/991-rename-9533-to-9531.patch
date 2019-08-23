@@ -1,0 +1,11 @@
+--- a/arch/mips/ath79/setup.c	2019-08-23 14:23:23.787795012 +0800
++++ b/arch/mips/ath79/setup.c	2019-08-23 17:09:32.796143710 +0800
+@@ -160,7 +160,7 @@
+ 
+ 	case REV_ID_MAJOR_QCA9533:
+ 		ath79_soc = ATH79_SOC_QCA9533;
+-		chip = "9533";
++		chip = "9531";
+ 		rev = id & QCA953X_REV_ID_REVISION_MASK;
+ 		break;
+ 
