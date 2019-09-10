@@ -11,7 +11,7 @@ local function get_qmiinfo()
 	
 	local is_dialing = luci.util.exec("ps | grep uqmi | grep cdc-wdm")
 	
-	if is_dialing then
+	if is_dialing and isdialing ~= "" then
 		return nil
 	end
 
