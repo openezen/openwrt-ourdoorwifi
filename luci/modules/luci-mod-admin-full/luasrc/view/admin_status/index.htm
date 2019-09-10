@@ -419,11 +419,9 @@
 
 <div class="index-column">
 
-  <%
-  	local qmiinfo = luci.sys.get_all_qmiinfo()
-  	local simcard = luci.sys.get_simcard()
-  -%>
-
+<%
+	local simcard = luci.sys.get_simcard()
+%>
   <%+header%>
 
   <script type="text/javascript">//<![CDATA[
@@ -485,6 +483,64 @@
 		location.reload();
 	}
 
+	var iwxhr = new XHR();	
+	var url = <%=ajax_path("qmi", "qmiinfo")%>;
+	XHR.poll(30, url, null,function(x, info){
+		if(info) {
+			var e;
+			if(info.model) 
+				if (e = document.getElementById('qmi_model'))
+					e.innerHTML = info.model
+			if(info.imei)
+				if (e = document.getElementById('qmi_imei'))
+					e.innerHTML = info.imei
+			if(info.plmn_desc)
+				if (e = document.getElementById('qmi_plmn'))
+					e.innerHTML = info.plmn_desc
+			if(info.cellid)
+				if (e = document.getElementById('qmi_cellid'))
+					e.innerHTML = info.cellid
+			if(info.areaid)
+				if (e = document.getElementById('qmi_areaid'))
+					e.innerHTML = info.areaid
+			if(info.plmn_mcc)
+				if (e = document.getElementById('qmi_mcc'))
+					e.innerHTML = info.plmn_mcc
+			if(info.plmn_mnc)
+				if (e = document.getElementById('qmi_mnc'))
+					e.innerHTML = info.plmn_mnc
+		}				
+	
+	});
+	
+	url = <%=ajax_path("qmi", "qmisignal")%>;
+	XHR.poll(10, url, null,function(x, info){
+		if(info) {
+			var e;
+			if(info.status) 
+				if (e = document.getElementById('qmi_status'))
+					e.innerHTML = info.status
+			if(info.roam) 
+				if (e = document.getElementById('qmi_roam'))
+					e.innerHTML = info.roam
+			if(info.band) 
+				if (e = document.getElementById('qmi_band'))
+					e.innerHTML = info.band
+			if(info.rsrp) 
+				if (e = document.getElementById('qmi_rsrp'))
+					e.innerHTML = info.rsrp
+			if(info.rsrq) 
+				if (e = document.getElementById('qmi_rsrq'))
+					e.innerHTML = info.rsrq
+			if(info.rssi) 
+				if (e = document.getElementById('qmi_rssi'))
+					e.innerHTML = info.rssi
+			if(info.snr) 
+				if (e = document.getElementById('qmi_snr'))
+					e.innerHTML = info.snr
+		}
+	});
+
   //]]></script>
 
   <h2 name="content"><%:Device%></h2>
@@ -492,23 +548,23 @@
   <div class="cbi-section">
 	<h3><input type="button" class="cbi-button cbi-button-apply" value="REACQUIRE" onclick="reload()"> </h3>
   	<div class="table" width="100%">
-  		<div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left"><%=pcdata(qmiinfo.model) or "Unknown"%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left" id="qmi_model">-</div></div>
   		<% if simcard then %>
-      		<div class="tr"><div class="td left" width="33%"><%:SIM Card%></div><div class="td left"><%=pcdata(qmiinfo.rssi) or "Unknown"%></div></div>
+		<div class="tr"><div class="td left" width="33%"><%:SIM Card%></div><div class="td left" id="qmi_simcard"><%=pcdata(simcard) or "-"%></div></div>
   		<% end %>
-  		<div class="tr"><div class="td left" width="33%"><%:IMEI Number%></div><div class="td left"><%=pcdata(qmiinfo.imei) or "Unknown"%></div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:Mobile Operator%></div><div class="td left"><%=pcdata(qmiinfo.plmn_desc) or "Unknown"%></div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:Mobile Connection%></div><div style="text-transform: capitalize;" class="td left"><%=pcdata(qmiinfo.status) or "Unknown"%></div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:Network Band%></div><div class="td left"><%=pcdata(qmiinfo.band) or "Unknown"%></div></div>
-      <div class="tr"><div class="td left" width="33%"><%:Roaming%></div><div style="text-transform: capitalize;" class="td left"><%=pcdata(qmiinfo.roam) or "Unknown"%></div></div>
-      <div class="tr"><div class="td left" width="33%"><%:Global Cell ID%></div><div class="td left"><%=pcdata(qmiinfo.cellid) or "Unknown"%></div></div>
-      <div class="tr"><div class="td left" width="33%"><%:Location Area Code%></div><div class="td left"><%=pcdata(qmiinfo.areaid) or "Unknown"%></div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:MCC%></div><div class="td left"><%=pcdata(qmiinfo.plmn_mcc or "Unknown")%></div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:MNC%></div><div class="td left"><%=pcdata(qmiinfo.plmn_mnc or "Unknown")%></div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:RSRP (Signal Strength)%></div><div class="td left"><%=pcdata(qmiinfo.rsrp or "Unknown")%></div></div>
-      <div class="tr"><div class="td left" width="33%"><%:RSRQ%></div><div class="td left"><%=pcdata(qmiinfo.rsrq or "Unknown")%></div></div>
-      <div class="tr"><div class="td left" width="33%"><%:RSSI%></div><div class="td left"><%=pcdata(qmiinfo.rssi or "Unknown")%></div></div>
-      <div class="tr"><div class="td left" width="33%"><%:SNR%></div><div class="td left"><%=pcdata(qmiinfo.snr or "Unknown")%></div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:IMEI Number%></div><div class="td left" id="qmi_imei">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Operator%></div><div class="td left" id="qmi_plmn">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Connection%></div><div style="text-transform: capitalize;" class="td left" id="qmi_status">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Network Band%></div><div class="td left" id="qmi_band">-</div></div>
+      <div class="tr"><div class="td left" width="33%"><%:Roaming%></div><div style="text-transform: capitalize;" class="td left" id="qmi_roam">-</div></div>
+      <div class="tr"><div class="td left" width="33%"><%:Global Cell ID%></div><div class="td left" id="qmi_cellid">-</div></div>
+      <div class="tr"><div class="td left" width="33%"><%:Location Area Code%></div><div class="td left" id="qmi_areaid">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:MCC%></div><div class="td left" id="qmi_mcc">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:MNC%></div><div class="td left" id="qmi_mnc">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:RSRP (Signal Strength)%></div><div class="td left" id="qmi_rsrp">-</div></div>
+      <div class="tr"><div class="td left" width="33%"><%:RSRQ%></div><div class="td left" id="qmi_rsrq">-</div></div>
+      <div class="tr"><div class="td left" width="33%"><%:RSSI%></div><div class="td left" id="qmi_rssi">-</div></div>
+      <div class="tr"><div class="td left" width="33%"><%:SNR%></div><div class="td left" id="qmi_snr">-</div></div>
   	</div>
   </div>
 

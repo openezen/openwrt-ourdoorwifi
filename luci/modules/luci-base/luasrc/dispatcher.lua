@@ -349,6 +349,9 @@ function dispatch(request)
 		   media       = media;
 		   theme       = fs.basename(media);
 		   resource    = luci.config.main.resourcebase;
+		   ajax_path   = function(...)
+		  	 return string.format([[":23333/ajax/%s"]], table.concat({...}, "/"))
+		   end;
 		   ifattr      = function(...) return _ifattr(...) end;
 		   attr        = function(...) return _ifattr(true, ...) end;
 		   url         = build_url;
