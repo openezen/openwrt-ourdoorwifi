@@ -506,7 +506,7 @@
 			if(info.plmn_mcc)
 				if (e = document.getElementById('qmi_mcc'))
 					e.innerHTML = info.plmn_mcc
-			if(info.plmn_mnc)
+			if(info.plmn_mnc != null)
 				if (e = document.getElementById('qmi_mnc'))
 					e.innerHTML = info.plmn_mnc
 		}				
@@ -519,7 +519,7 @@
 			var e;
 			if(info.status) 
 				if (e = document.getElementById('qmi_status'))
-					e.innerHTML = info.status
+					e.innerHTML = String.format("QMI: %s", info.status)
 			if(info.roam) 
 				if (e = document.getElementById('qmi_roam'))
 					e.innerHTML = info.roam

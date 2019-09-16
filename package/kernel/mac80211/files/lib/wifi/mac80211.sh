@@ -77,7 +77,7 @@ detect_mac80211() {
 		[ "$found" -gt 0 ] && continue
 
 		mode_band="g"
-		channel="11"
+		channel="auto"
 		htmode=""
 		ht_capab=""
 

@@ -498,60 +498,6 @@ function get_simcard(self)
 end
 
 
-function get_all_qmiinfo(device)
-	local qmiinfo = {}
-	local device = "/dev/cdc-wdm0"
-	local bandtype
-
-    local ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device  .." --get-serving-system")
-	local system = js.parse(ret)
-
-	ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device .. " --get-signal-info")
-	local signal = js.parse(ret) 
-	ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device .. " --get-imei")
-	local imei = js.parse(ret) 
-	ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device .. " --get-data-status")
-	local status = js.parse(ret) 
-	ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --dms-get-revision | grep Revision")
-	local model = ret:match("Revision: '(%w+)[%s%']")
-	ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --nas-get-rf-band-info | grep \"Active Band Class\"")
-	local band = ret:match("Active Band Class: '([%w-]+)'")
-	ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --wds-get-autoconnect-settings | grep Roaming")
-	local roam = ret:match("Roaming: '([%w-]+)'")
-	ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --nas-get-system-info | grep \"Cell ID\"")
-	local cellid = ret:match("Cell ID: '([%w-]+)'")
-	ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --nas-get-serving-system | grep \"3GPP location area code\"")
-	local areaid = ret:match("3GPP location area code: '([%w-]+)'")
-	ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --nas-get-signal-info | grep \"SNR\"")
-	local snr = ret:match("SNR: '([%w%s-%.]+)'")
-
-	if band and signal.type then
-		bandtype = signal.type:upper() .. "  " ..band:upper()
-	else
-		bandtype = nil;
-	end
-
-	qmiinfo = {
-		plmn_mcc = system and system.plmn_mcc or nil,
-		plmn_mnc = system and system.plmn_mnc or nil,
-		plmn_desc = syatem and system.plmn_description or nil,
-		model = model,
-		status = status,
-		roam = roam,
-		band = bandtype,
-		rssi = signal and signal.rssi and signal.rssi .. " dBm" or nil,
-		rsrq = signal and signal.rsrq and signal.rsrq .. " dBm" or nil,
-		rsrp = signal and signal.rsrp and signal.rsrp .. " dBm" or nil,
-		snr = snr,
-		imei = imei,
-		cellid = cellid,
-		areaid = areaid,
-        isptype = signal and signal.type or nil,
-	}
-
-	return qmiinfo
-end
-
 function getqmiinfo(device)
     local rv = {}
     local ret = luci.util.exec("uqmi -d /dev/cdc-wdm0  --get-serving-system")

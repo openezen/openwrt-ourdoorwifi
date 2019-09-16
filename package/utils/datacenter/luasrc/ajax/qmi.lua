@@ -5,9 +5,14 @@ local M = {}
 local prev_ifaces
 
 tasklet.start_task(function ()
-	while true do 
+	local i = 0
+	while true do
 		tasklet.sleep(10)
 		fs.unlink('/tmp/qmisignal.data')
+		if i % 6 == 5 then
+			fs.unlink('/tmp/qmiinfo.data')
+		end
+		i = i + 1
 	end
 end)
 

@@ -9,7 +9,7 @@ local function get_qmisignal()
 	local device = "/dev/cdc-wdm0"
 	local bandtype
 
-	local is_dialing = luci.util.exec("ps | grep uqmi | grep cdc-wdm")
+	local is_dialing = luci.util.exec("ps | grep uqmi | grep cdc-wdm | grep -v grep")
 	
 	if is_dialing and is_dialing ~= "" then
 		return nil
