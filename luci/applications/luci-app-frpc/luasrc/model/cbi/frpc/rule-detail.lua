@@ -39,6 +39,7 @@ o:value("https", "HTTPS")
 o:value("stcp", "STCP")
 o:value("xtcp", "XTCP")
 
+--[[
 o = s:option(Value, "plugin", translate("Plugin"))
 o:value("", translate("None"))
 o:value("unix_domain_socket")
@@ -84,6 +85,7 @@ o:depends("plugin", "https2http")
 
 o = s:option(Value, "plugin_host_header_rewrite", "%s - %s" % { translate("Plugin"), translate("Host header rewrite") })
 o:depends("plugin", "https2http")
+]]--
 
 o = s:option(Value, "local_ip", translate("Local IP"))
 o.datatype = "host"
@@ -96,6 +98,7 @@ o = s:option(Value, "remote_port", translate("Remote port"))
 o:depends("type", "tcp")
 o:depends("type", "udp")
 
+--[[
 o = s:option(Flag, "use_encryption", translate("Use encryption"))
 o.enabled = "true"
 o.disabled = "false"
@@ -118,7 +121,7 @@ o = s:option(Value, "sk", translate("SK"))
 o.password = true
 o:depends("type", "stcp")
 o:depends("type", "xtcp")
-
+]]--
 o = s:option(Value, "bind_addr", translate("Bind addr"))
 o.datatype = "host"
 o:depends("type", "stcp")
@@ -128,13 +131,13 @@ o = s:option(Value, "bind_port", translate("Bind port"))
 o.datatype = "port"
 o:depends("type", "stcp")
 o:depends("type", "xtcp")
-
+--[[
 o = s:option(Value, "http_user", translate("HTTP user"))
 o:depends("type", "http")
 
 o = s:option(Value, "http_pwd", translate("HTTP password"))
 o:depends("type", "http")
-
+]]--
 o = s:option(Value, "subdomain", translate("Subdomain"))
 o:depends("type", "http")
 o:depends("type", "https")
@@ -142,7 +145,7 @@ o:depends("type", "https")
 o = s:option(Value, "custom_domains", translate("Custom domains"))
 o:depends("type", "http")
 o:depends("type", "https")
-
+--[[
 o = s:option(Value, "locations", translate("Locations"))
 o:depends("type", "http")
 
@@ -195,5 +198,12 @@ o:depends("health_check_type", "http")
 o = s:option(DynamicList, "extra_options", translate("Extra options"),
 	translate("List of extra options"))
 o.placeholder = "option=value"
+]]--
+
+o = s:option(Flag, "privilege_mode", translate("Privilege Mode"))
+o.enabled = "true"
+o.disabled = "false"
+o.defalut = o.enabled
+o.rmempty = false
 
 return m

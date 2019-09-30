@@ -82,7 +82,8 @@ server_section_validate() {
 		'alias:string' \
 		'server_addr:host' \
 		'server_port:port' \
-		'token:string' \
+		'auth_token:string' \
+		'privilege_token:string' \
 		'tcp_mux:or("true", "false"):true'
 }
 
@@ -108,6 +109,7 @@ rule_section_validate() {
 		'remote_port:or(port, portrange)' \
 		'use_encryption:or("true", "false"):false' \
 		'use_compression:or("true", "false"):false' \
+		'privilege_mode:or("true", "false"):false' \
 		'role:string' \
 		'server_name:string' \
 		'sk:string' \
@@ -171,7 +173,8 @@ add_frpc_rule() {
 		"remote_port" "use_encryption" "use_compression" "role" "server_name" "bind_addr" \
 		"bind_port" "sk" "http_user" "http_pwd" "subdomain" "custom_domains" "locations" \
 		"host_header_rewrite" "proxy_protocol_version" "group" "group_key" "health_check_type" \
-		"health_check_url" "health_check_timeout_s" "health_check_max_failed" "health_check_interval_s"
+		"health_check_url" "health_check_timeout_s" "health_check_max_failed" "health_check_interval_s" \
+		"privilege_mode"
 
 	config_list_foreach "$section" "extra_options" add_rule_extra_option "$file"
 }
@@ -183,7 +186,7 @@ create_config_file() {
 	echo "[common]" > "$tmp_file"
 
 	append_options "$tmp_file" \
-		"server_addr" "server_port" "token"
+		"server_addr" "server_port" "auth_token" "privilege_token"
 
 	if [ "x$enable_logging" = "x1" ] ; then
 		if [ -z "$log_file" ]; then

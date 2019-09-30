@@ -53,8 +53,8 @@ s.addremove = false
 s.anonymous = true
 
 s:tab("general", translate("General Options"))
-s:tab("advanced", translate("Advanced Options"))
-s:tab("manage", translate("Manage Options"))
+--s:tab("advanced", translate("Advanced Options"))
+--s:tab("manage", translate("Manage Options"))
 
 o = s:taboption("general", Flag, "enabled", translate("Enabled"))
 
@@ -99,6 +99,7 @@ o:depends("enable_logging", "1")
 o.enabled = "true"
 o.disabled = "false"
 
+--[[
 o = s:taboption("advanced", Value, "pool_count", translate("Pool count"),
 	translate("Connections will be established in advance, default value is zero"))
 o.datatype = "uinteger"
@@ -150,5 +151,5 @@ o = s:taboption("manage", Value, "admin_user", translate("Admin user"))
 
 o = s:taboption("manage", Value, "admin_pwd", translate("Admin password"))
 o.password = true
-
+]]--
 return m

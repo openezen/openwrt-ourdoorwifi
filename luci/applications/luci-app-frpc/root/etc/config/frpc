@@ -1,7 +1,7 @@
 config frpc 'main'
 	option enabled '0'
 	option server 'frps'
-	option client_file '/usr/bin/frpc'
+	option client_file '/usr/sbin/frpc'
 	option login_fail_exit 'false'
 
 config server 'frps'

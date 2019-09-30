@@ -29,13 +29,11 @@ o = s:option(Value, "server_port", translate("Server port"))
 o.datatype = "port"
 o.rmempty = false
 
-o = s:option(Value, "token", translate("Token"))
+o = s:option(Value, "auth_token", translate("Token"))
 o.password = true
 
-o = s:option(Flag, "tcp_mux", translate("TCP mux"))
-o.enabled = "true"
-o.disabled = "false"
-o.defalut = o.enabled
-o.rmempty = false
+o = s:option(Value, "privilege_token", translate("Privilege Token")
+o.password = true
+
 
 return m

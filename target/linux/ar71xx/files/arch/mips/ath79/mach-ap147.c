@@ -26,11 +26,11 @@
 #include "machtypes.h"
 #include "pci.h"
 
-#define AP147_GPIO_LED_WAN	4
-#define AP147_GPIO_LED_LAN1	16
-#define AP147_GPIO_LED_LAN2	15
-#define AP147_GPIO_LED_LAN3	14
-#define AP147_GPIO_LED_LAN4	11
+#define AP147_GPIO_SIM_SWITCH 1
+#define AP147_GPIO_LED_WAN	16
+#define AP147_GPIO_LED_LAN1	4
+#define AP147_GPIO_LED_SIM2	15
+#define AP147_GPIO_LED_SIM1	14
 #define AP147_GPIO_LED_STATUS	13
 #define AP147_GPIO_LED_WLAN_2G	12
 
@@ -55,21 +55,23 @@ static struct gpio_led ap147_leds_gpio[] __initdata = {
 		.gpio		= AP147_GPIO_LED_LAN1,
 		.active_low	= 1,
 	}, {
-		.name		= "ap147:green:lan2",
-		.gpio		= AP147_GPIO_LED_LAN2,
+		.name		= "ap147:green:sim1",
+		.gpio		= AP147_GPIO_LED_SIM1,
 		.active_low	= 1,
+		.default_state = LEDS_GPIO_DEFSTATE_ON,
 	}, {
-		.name		= "ap147:green:lan3",
-		.gpio		= AP147_GPIO_LED_LAN3,
+		.name		= "ap147:green:sim2",
+		.gpio		= AP147_GPIO_LED_SIM2,
 		.active_low	= 1,
-	}, {
-		.name		= "ap147:green:lan4",
-		.gpio		= AP147_GPIO_LED_LAN4,
-		.active_low	= 1,
+		.default_state = LEDS_GPIO_DEFSTATE_OFF,
 	}, {
 		.name		= "ap147:green:wan",
 		.gpio		= AP147_GPIO_LED_WAN,
 		.active_low	= 1,
+	}, {
+		.name		= "ap147:sim",
+		.gpio		= AP147_GPIO_SIM_SWITCH,
+		.active_low	= 0,
 	},
 };
 
@@ -88,6 +90,7 @@ static void __init ap147_setup(void)
 {
 	u8 *art = (u8 *)KSEG1ADDR(0x1fff0000);
 
+	ath79_gpio_function_setup(AR934X_GPIO_FUNC_JTAG_DISABLE, 0);
 	ath79_register_m25p80(NULL);
 	ath79_register_leds_gpio(-1, ARRAY_SIZE(ap147_leds_gpio),
 				 ap147_leds_gpio);
