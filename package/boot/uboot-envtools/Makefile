@@ -76,7 +76,7 @@ define Package/uboot-envtools/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(if $(wildcard ./files/$(BOARD)), \
 		$(INSTALL_DATA) ./files/$(BOARD) \
-		$(1)/etc/uci-defaults/30_uboot-envtools \
+		$(1)/etc/uci-defaults/00_uboot-envtools \
 	)
 endef
 

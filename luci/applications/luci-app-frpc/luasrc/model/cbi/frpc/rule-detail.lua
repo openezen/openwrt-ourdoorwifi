@@ -7,7 +7,7 @@ local m, s, o
 
 local sid = arg[1]
 
-m = Map("frpc", "%s - %s" % { translate("Frpc"), translate("Edit Proxy Rule") })
+m = Map("frpc", "%s - %s" % { translate("Traversal cloud"), translate("Edit Proxy Rule") })
 m.redirect = dsp.build_url("admin/services/frpc/rules")
 
 if m.uci:get("frpc", sid) ~= "rule" then

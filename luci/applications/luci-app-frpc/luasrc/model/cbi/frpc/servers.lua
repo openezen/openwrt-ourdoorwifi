@@ -5,7 +5,7 @@ local dsp = require "luci.dispatcher"
 
 local m, s, o
 
-m = Map("frpc", "%s - %s" % { translate("Frpc"), translate("Frps Servers") })
+m = Map("frpc", "%s - %s" % { translate("Traversal cloud"), translate("Servers") })
 
 s = m:section(TypedSection, "server")
 s.anonymous = true

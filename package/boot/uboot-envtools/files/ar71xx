@@ -58,7 +58,8 @@ t830|\
 tube2h|\
 wam250|\
 wndr3700|\
-xd3200)
+xd3200|\
+ap147-010)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x10000" "0x10000"
 	;;
 alfa-ap96|\

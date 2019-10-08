@@ -39,11 +39,9 @@ local function frpc_version()
 	return translatef("Version: %s", version)
 end
 
-m = Map("frpc", "%s - %s" % { translate("Frpc"), translate("Common Settings") },
-"<p>%s</p><p>%s</p>" % {
-	translate("Frp is a fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet."),
-	translatef("For more information, please visit: %s",
-		"<a href=\"https://github.com/fatedier/frp\" target=\"_blank\">https://github.com/fatedier/frp</a>")
+m = Map("frpc", "%s - %s" % { translate("Traversal cloud"), translate("Common Settings") },
+"<p>%s</p>" % {
+	translate("Traversal cloud is a secure NAT tunnel tool to provide remote control function on the outdoor router and connected hosts"),
 })
 
 m:append(Template("frpc/status_header"))

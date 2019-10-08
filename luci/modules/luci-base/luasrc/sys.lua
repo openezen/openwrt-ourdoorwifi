@@ -85,6 +85,17 @@ function hostname(newname)
 	end
 end
 
+function serial_number()
+	local cur = uci.cursor()
+	local serialno = cur:get("productinfo", "hardware", "serial_number")
+
+	if serialno then
+		return serialno
+	else
+		return ""
+	end
+end
+
 function httpget(url, stream, target)
 	if not target then
 		local source = stream and io.popen or luci.util.exec
