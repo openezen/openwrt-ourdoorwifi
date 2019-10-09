@@ -56,8 +56,8 @@ s:tab("general", translate("General Options"))
 
 o = s:taboption("general", Flag, "enabled", translate("Enabled"))
 
-o = s:taboption("general", Value, "client_file", translate("Client file"), frpc_version())
-o.rmempty = false
+--o = s:taboption("general", Value, "client_file", translate("Client file"), frpc_version())
+--o.rmempty = false
 
 o = s:taboption("general", ListValue, "server", translate("Server"))
 o:value("", translate("None"))
@@ -65,20 +65,20 @@ for k, v in pairs(server_table) do
 	o:value(k, v)
 end
 
-o = s:taboption("general", ListValue, "run_user", translate("Run daemon as user"))
+o = s:taboption("general", ListValue, "run_user", translate("Run Daemon As"))
 o:value("", translate("-- default --"))
 local user
 for user in util.execi("cat /etc/passwd | cut -d':' -f1") do
 	o:value(user)
 end
 
-o = s:taboption("general", Flag, "enable_logging", translate("Enable logging"))
+o = s:taboption("general", Flag, "enable_logging", translate("Enable Logging"))
 
-o = s:taboption("general", Value, "log_file", translate("Log file"))
+o = s:taboption("general", Value, "log_file", translate("Log File"))
 o:depends("enable_logging", "1")
 o.placeholder = "/var/log/frpc.log"
 
-o = s:taboption("general", ListValue, "log_level", translate("Log level"))
+o = s:taboption("general", ListValue, "log_level", translate("Log Level"))
 o:depends("enable_logging", "1")
 o:value("trace", translate("Trace"))
 o:value("debug", translate("Debug"))

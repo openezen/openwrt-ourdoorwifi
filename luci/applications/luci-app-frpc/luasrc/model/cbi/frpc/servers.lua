@@ -22,12 +22,12 @@ function s.create(...)
 	end
 end
 
-o = s:option(DummyValue, "alias", translate("Alias"))
+o = s:option(DummyValue, "alias", translate("Server Name"))
 o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or translate("None")
 end
 
-o = s:option(DummyValue, "server_addr", translate("Server Addr"))
+o = s:option(DummyValue, "server_addr", translate("Server Address"))
 o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
