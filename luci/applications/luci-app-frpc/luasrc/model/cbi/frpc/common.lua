@@ -50,35 +50,35 @@ s = m:section(NamedSection, "main", "frpc")
 s.addremove = false
 s.anonymous = true
 
-s:tab("general", translate("General Options"))
+--s:tab("general", translate("General Options"))
 --s:tab("advanced", translate("Advanced Options"))
 --s:tab("manage", translate("Manage Options"))
 
-o = s:taboption("general", Flag, "enabled", translate("Enabled"))
+o = s:option(Flag, "enabled", translate("Enabled"))
 
---o = s:taboption("general", Value, "client_file", translate("Client file"), frpc_version())
+--o = s:option("general", Value, "client_file", translate("Client file"), frpc_version())
 --o.rmempty = false
 
-o = s:taboption("general", ListValue, "server", translate("Server"))
+o = s:option(ListValue, "server", translate("Server"))
 o:value("", translate("None"))
 for k, v in pairs(server_table) do
 	o:value(k, v)
 end
 
-o = s:taboption("general", ListValue, "run_user", translate("Run Daemon As"))
+o = s:option(ListValue, "run_user", translate("Run Daemon As"))
 o:value("", translate("-- default --"))
 local user
 for user in util.execi("cat /etc/passwd | cut -d':' -f1") do
 	o:value(user)
 end
 
-o = s:taboption("general", Flag, "enable_logging", translate("Enable Logging"))
+o = s:option(Flag, "enable_logging", translate("Enable Logging"))
 
-o = s:taboption("general", Value, "log_file", translate("Log File"))
+o = s:option(Value, "log_file", translate("Log File"))
 o:depends("enable_logging", "1")
 o.placeholder = "/var/log/frpc.log"
 
-o = s:taboption("general", ListValue, "log_level", translate("Log Level"))
+o = s:option(ListValue, "log_level", translate("Log Level"))
 o:depends("enable_logging", "1")
 o:value("trace", translate("Trace"))
 o:value("debug", translate("Debug"))
@@ -87,12 +87,12 @@ o:value("warn", translate("Warn"))
 o:value("error", translate("Error"))
 o.default = "warn"
 
-o = s:taboption("general", Value, "log_max_days", translate("Log max days"))
+o = s:option(Value, "log_max_days", translate("Log max days"))
 o:depends("enable_logging", "1")
 o.datatype = "uinteger"
 o.placeholder = '3'
 
-o = s:taboption("general", Value, "disable_log_color", translate("Disable log color"))
+o = s:option(Value, "disable_log_color", translate("Disable log color"))
 o:depends("enable_logging", "1")
 o.enabled = "true"
 o.disabled = "false"

@@ -5,10 +5,12 @@ config frpc 'main'
 	option login_fail_exit 'false'
 
 config server 'frps'
-	option server_addr '0.0.0.0'
-	option server_port '7000'
+	option server_addr '68.183.37.99'
+	option server_port '7700'
 	option tcp_mux 'true'
 	option alias 'outdoorrouter.net'
+    option privilege_token "likefrpc"
+    option auth_token "outdoorfrpc"
 
 config rule 'web_proxy'
 	option name 'web'

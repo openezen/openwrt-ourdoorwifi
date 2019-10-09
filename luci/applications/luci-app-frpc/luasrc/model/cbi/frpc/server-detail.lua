@@ -34,6 +34,6 @@ o.password = true
 
 o = s:option(Value, "privilege_token", translate("Privilege Token"))
 o.password = true
-
+o.hidden = true
 
 return m
