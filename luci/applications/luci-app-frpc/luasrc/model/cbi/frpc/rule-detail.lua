@@ -142,10 +142,11 @@ o = s:option(Value, "subdomain", translate("Subdomain"))
 o:depends("type", "http")
 o:depends("type", "https")
 
+--[[
 o = s:option(Value, "custom_domains", translate("Custom domains"))
 o:depends("type", "http")
 o:depends("type", "https")
---[[
+
 o = s:option(Value, "locations", translate("Locations"))
 o:depends("type", "http")
 

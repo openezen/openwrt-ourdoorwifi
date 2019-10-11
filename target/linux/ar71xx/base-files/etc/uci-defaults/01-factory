@@ -2,14 +2,14 @@
 
 local serial_number=$(fw_printenv serial_number|awk -F= '{print $2}')
 
-#[ "y$serial_number" == "y" ] && {
-#	local mac=$(ip link show eth0 | grep ether | awk '{ print $2 }' | sed s/\://g)
-#	local random=$(head -n 10 /dev/urandom | md5sum )
-#	random=$(echo ${random:0:8})
-#	serial_number=EZEN${random}${mac:6:12}
-#	serial_number=$(echo $serial_number | tr 'a-z' 'A-Z')
-#	fw_setenv serial_number $serial_number
-#}
+[ "y$serial_number" == "y" ] && {
+	local mac=$(ip link show eth0 | grep ether | awk '{ print $2 }' | sed s/\://g)
+	local random=$(head -n 10 /dev/urandom | md5sum )
+	random=$(echo ${random:0:4})
+	serial_number=ES${random}${mac:8:12}
+	serial_number=$(echo $serial_number | tr 'a-z' 'A-Z')
+	fw_setenv serial_number $serial_number
+}
 
 uci set productinfo.hardware.serial_number=$serial_number
 uci commit productinfo

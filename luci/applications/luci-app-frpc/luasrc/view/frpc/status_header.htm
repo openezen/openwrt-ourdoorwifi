@@ -5,12 +5,17 @@
 
 <%
 local dsp = require "luci.dispatcher"
+local sys = require "luci.sys"
+
+local serial = luci.sys.serial_number()
+local default_url = "http://" .. serial:lower() .. ".outdoorrouter.net:18080"
 -%>
 
 <fieldset class="cbi-section">
-	<p id="frpc_status">
+	<p class="btn failed" id="frpc_status">
 		<em><%:Collecting data...%></em>
 	</p>
+	<p id="frpc_desc"><%:Cloud address:   %><a href=<%=default_url%> target="_blank"><%=default_url%></a ></p >
 </fieldset>
 
 <script type="text/javascript">//<![CDATA[
@@ -24,6 +29,10 @@ local dsp = require "luci.dispatcher"
 			frpcStatusElm.innerHTML = data.running
 				? '<%:Running%>'
 				: '<%:Not Running%>';
+			frpcStatusElm.className = data.running ? "btn success" : "btn failed"
 		}
 	);
+	
+	
+
 //]]></script>

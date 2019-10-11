@@ -41,7 +41,7 @@ end
 
 m = Map("frpc", "%s - %s" % { translate("Traversal cloud"), translate("Common Settings") },
 "<p>%s</p>" % {
-	translate("Traversal cloud is a secure NAT tunnel tool to provide remote control function on the outdoor router and connected hosts"),
+	translate("Traversal cloud is a secure NAT tunnel tool to provide remote control function on the outdoor router and connected hosts."),
 })
 
 m:append(Template("frpc/status_header"))
@@ -65,6 +65,7 @@ for k, v in pairs(server_table) do
 	o:value(k, v)
 end
 
+--[[
 o = s:option(ListValue, "run_user", translate("Run Daemon As"))
 o:value("", translate("-- default --"))
 local user
@@ -92,10 +93,11 @@ o:depends("enable_logging", "1")
 o.datatype = "uinteger"
 o.placeholder = '3'
 
-o = s:option(Value, "disable_log_color", translate("Disable log color"))
+o = s:option(Value, "disable_log_color", translate("Disable Log Color"))
 o:depends("enable_logging", "1")
 o.enabled = "true"
 o.disabled = "false"
+]]--
 
 --[[
 o = s:taboption("advanced", Value, "pool_count", translate("Pool count"),

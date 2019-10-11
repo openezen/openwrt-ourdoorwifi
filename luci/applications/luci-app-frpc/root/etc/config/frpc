@@ -3,6 +3,7 @@ config frpc 'main'
 	option server 'frps'
 	option client_file '/usr/sbin/frpc'
 	option login_fail_exit 'false'
+	option run_user 'root'
 
 config server 'frps'
 	option server_addr '68.183.37.99'

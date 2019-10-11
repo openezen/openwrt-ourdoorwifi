@@ -37,7 +37,9 @@ append_options() {
 				( echo "$v" | grep -q ':' ) ; then
 				v="[$v]"
 			fi
-
+			if [ "${o}" == "subdomain" ]; then
+				v=$(echo $v | tr 'A-Z' 'a-z')
+			fi
 			echo "${o} = $v" >>"$file"
 		fi
 	done

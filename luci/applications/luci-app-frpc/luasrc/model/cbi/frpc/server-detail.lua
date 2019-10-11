@@ -19,13 +19,13 @@ s = m:section(NamedSection, sid, "server")
 s.anonymous = true
 s.addremove = false
 
-o = s:option(Value, "alias", translate("Alias"))
+o = s:option(Value, "alias", translate("Server Domain"))
 
-o = s:option(Value, "server_addr", translate("Server addr"))
+o = s:option(Value, "server_addr", translate("Server IP"))
 o.datatype = "host"
 o.rmempty = false
 
-o = s:option(Value, "server_port", translate("Server port"))
+o = s:option(Value, "server_port", translate("Server Port"))
 o.datatype = "port"
 o.rmempty = false
 
