@@ -20,11 +20,8 @@ if [ "x$frpc" != "xmain" ]; then
 	EOF
 fi
 
-subdomain=$(uci get frpc.web_proxy.subdomain)
-[ "y$subdomain" == "y" ] && {
-	serial_number=$(uci get productinfo.hardware.serial_number)
-	[ -n "$serial_number" ] && uci set frpc.web_proxy.subdomain=$serial_number && uci commit frpc
-}
+serial_number=$(uci get productinfo.hardware.serial_number)
+[ -n "$serial_number" ] && uci set frpc.outdoorweb.subdomain=$serial_number && uci commit frpc
 
 rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
 exit 0

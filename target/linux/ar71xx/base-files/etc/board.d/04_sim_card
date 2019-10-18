@@ -2,6 +2,12 @@
 #
 # Copyright (C) 2015 OpenWrt.org
 #
-uci set productinfo.hardware.simcard_num=2
+distname=$(grep DISTRIB_ID /etc/openwrt_release | awk -F= '{print $2}' | sed s/\'//g)
+if [ "$distname" == "EZR33" ] ;then
+	uci set productinfo.hardware.simcard_num=2
+else
+	uci set productinfo.hardware.simcard_num=1
+fi
+
 uci commit productinfo
 exit 0

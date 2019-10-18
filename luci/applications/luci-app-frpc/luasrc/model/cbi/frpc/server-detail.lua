@@ -20,20 +20,35 @@ s.anonymous = true
 s.addremove = false
 
 o = s:option(Value, "alias", translate("Server Domain"))
+if sid == "outdoorrouter"  then
+	o.readonly = true                                   
+end  
 
-o = s:option(Value, "server_addr", translate("Server IP"))
+o = s:option(Value, "server_addr", translate("Server Address"))
 o.datatype = "host"
 o.rmempty = false
+if sid == "outdoorrouter"  then
+	o.readonly = true                                   
+end  
 
 o = s:option(Value, "server_port", translate("Server Port"))
 o.datatype = "port"
 o.rmempty = false
+if sid == "outdoorrouter"  then
+	o.readonly = true                                   
+end  
 
 o = s:option(Value, "auth_token", translate("Token"))
 o.password = true
+if sid == "outdoorrouter"  then
+	o.readonly = true                                   
+end  
 
 o = s:option(Value, "privilege_token", translate("Privilege Token"))
 o.password = true
 o.hidden = true
+if sid == "outdoorrouter"  then
+	o.readonly = true                                   
+end  
 
 return m

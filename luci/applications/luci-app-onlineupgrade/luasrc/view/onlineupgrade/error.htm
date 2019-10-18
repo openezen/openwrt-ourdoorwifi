@@ -1,0 +1,37 @@
+<%+header%>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.index-column {
+  float: left;
+  width: 100%;
+  padding: 0 15px 0 0;
+}
+
+.index-row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media screen and (max-width: 600px) {
+  .index-column {
+    width: 100%;
+  }
+}
+</style>
+
+
+
+<div class="index-row">
+
+<div class="index-column">
+<div class="cbi-section">
+<h2 name="content"><%:Online Upgrade%></h2>
+			<% if image_invalid then %>
+				<div class="cbi-section-error"><%:The download image file does not contain a supported format. Make sure that you choose the generic image format for your platform. %></div>
+			<% end %>
+
+<%+footer%>

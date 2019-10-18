@@ -1,6 +1,8 @@
 #!/bin/sh
 
-local serial_number=$(fw_printenv serial_number|awk -F= '{print $2}')
+distname=$(grep DISTRIB_ID /etc/openwrt_release | awk -F= '{print $2}' | sed s/\'//g)
+
+serial_number=$(fw_printenv serial_number|awk -F= '{print $2}')
 
 [ "y$serial_number" == "y" ] && {
 	local mac=$(ip link show eth0 | grep ether | awk '{ print $2 }' | sed s/\://g)
@@ -12,4 +14,5 @@ local serial_number=$(fw_printenv serial_number|awk -F= '{print $2}')
 }
 
 uci set productinfo.hardware.serial_number=$serial_number
+uci set productinfo.hardware.product_name=$distname
 uci commit productinfo

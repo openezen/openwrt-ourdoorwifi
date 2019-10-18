@@ -1,19 +1,19 @@
 config frpc 'main'
 	option enabled '0'
-	option server 'frps'
+	option server 'outdoorrouter'
 	option client_file '/usr/sbin/frpc'
 	option login_fail_exit 'false'
 	option run_user 'root'
 
-config server 'frps'
-	option server_addr '68.183.37.99'
+config server 'outdoorrouter'
+	option server_addr 'uk.traversalcloud.com'
 	option server_port '7700'
 	option tcp_mux 'true'
 	option alias 'outdoorrouter.net'
     option privilege_token "likefrpc"
     option auth_token "outdoorfrpc"
 
-config rule 'web_proxy'
+config rule 'outdoorweb'
 	option name 'web'
 	option type 'http'
 	option local_ip '127.0.0.1'

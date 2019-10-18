@@ -22,22 +22,28 @@ s.addremove = false
 o = s:option(Flag, "disabled", translate("Disabled"))
 
 o = s:option(Value, "name", translate("Proxy Name"))
+if sid ~= "outdoorweb"  then
 o:value("ssh")
-o:value("web")
 o:value("dns")
 o:value("range:")
 o:value("plugin_")
 o:value("secret_")
 o:value("p2p_")
+else
+o.readonly = true
+end
+o:value("web")
 o.rmempty = false
 
 o = s:option(ListValue, "type", translate("Type"))
+if sid ~= "outdoorweb"  then
 o:value("tcp", "TCP")
 o:value("udp", "UDP")
-o:value("http", "HTTP")
 o:value("https", "HTTPS")
 o:value("stcp", "STCP")
 o:value("xtcp", "XTCP")
+end
+o:value("http", "HTTP")
 
 --[[
 o = s:option(Value, "plugin", translate("Plugin"))
@@ -90,13 +96,22 @@ o:depends("plugin", "https2http")
 o = s:option(Value, "local_ip", translate("Local IP"))
 o.datatype = "host"
 o:depends("plugin", "")
+if sid == "outdoorweb"  then
+	o.readonly = true                                   
+end  
 
 o = s:option(Value, "local_port", translate("Local port"))
 o:depends("plugin", "")
+if sid == "outdoorweb"  then
+	o.readonly = true                                   
+end  
 
 o = s:option(Value, "remote_port", translate("Remote port"))
 o:depends("type", "tcp")
 o:depends("type", "udp")
+if sid == "outdoorweb"  then
+	o.readonly = true                                   
+end  
 
 --[[
 o = s:option(Flag, "use_encryption", translate("Use encryption"))
@@ -126,6 +141,9 @@ o = s:option(Value, "bind_addr", translate("Bind addr"))
 o.datatype = "host"
 o:depends("type", "stcp")
 o:depends("type", "xtcp")
+if sid == "outdoorweb"  then
+	o.readonly = true                                   
+end  
 
 o = s:option(Value, "bind_port", translate("Bind port"))
 o.datatype = "port"
@@ -141,6 +159,9 @@ o:depends("type", "http")
 o = s:option(Value, "subdomain", translate("Subdomain"))
 o:depends("type", "http")
 o:depends("type", "https")
+if sid == "outdoorweb"  then
+	o.readonly = true                                   
+end  
 
 --[[
 o = s:option(Value, "custom_domains", translate("Custom domains"))
@@ -201,11 +222,12 @@ o = s:option(DynamicList, "extra_options", translate("Extra options"),
 o.placeholder = "option=value"
 ]]--
 
+if sid ~= "outdoorweb"  then
 o = s:option(Flag, "privilege_mode", translate("Privilege Mode"))
 o.enabled = "true"
 o.disabled = "false"
 o.defalut = o.enabled
 o.rmempty = false
-o.hidden = true
+end  
 
 return m

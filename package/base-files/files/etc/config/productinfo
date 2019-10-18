@@ -1,2 +1,3 @@
 config product hardware
 	option simcard_num '1'
+	option update_server 'http://www.outdoorrouter.net:8080'

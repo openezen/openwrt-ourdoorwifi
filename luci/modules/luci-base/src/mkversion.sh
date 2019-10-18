@@ -6,7 +6,7 @@ local pcall, dofile, _G = pcall, dofile, _G
 module "luci.version"
 
 if pcall(dofile, "/etc/openwrt_release") and _G.DISTRIB_DESCRIPTION then
-	distname    = ""
+	distname    = _G.DISTRIB_ID
 	distversion = _G.DISTRIB_DESCRIPTION
 	distrevision = _G.DISTRIB_REVISION
 else
