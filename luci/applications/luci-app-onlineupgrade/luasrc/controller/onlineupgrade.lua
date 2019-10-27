@@ -121,8 +121,7 @@ function action_upgrade()
 			size = _G.FIRMWARE_SIZE
 		end
 
---		local url = update_server .. "/" .. product_name .. "/" .. filename 
-		local url = update_server .. "/" .. product_name .. "/EZR33.ini" 
+		local url = update_server .. "/" .. product_name .. "/" .. filename 
 		luci.util.exec("wget " .. url .. " -O " .. image_tmp)
 	
 		if image_supported(image_tmp) and md5sum == image_checksum(image_tmp)  then

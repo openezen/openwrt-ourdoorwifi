@@ -4,6 +4,9 @@
  Licensed to the public under the Apache License 2.0.
 -%>
 
+<%
+	local ver = require "luci.version"
+%>
 <%+header%>
 
 <h2 name="content"><%:Flash operations%></h2>
@@ -90,5 +93,17 @@
 		<div class="cbi-section-descr"><%:Sorry, there is no sysupgrade support present; a new firmware image must be flashed manually. Please refer to the wiki for device specific install instructions.%></div>
 	<% end %>
 </div>
+
+
+<div class="cbi-section">  
+	<h3><%:Online Upgrade%></h3> 
+	<form class="inline">
+		<div class="cbi-section-descr"><%:Upgrade firmware from cloud server%></div>
+		<div class="table" width="100%">                                                                                     
+			<div class="tr"><div class="td left" width="33%"><%:Current Version%>:</div><div class="td left"><%=pcdata(ver.distversion)%></div></div>
+		</div>
+		<input class="cbi-button cbi-button-action important" type="button" value="<%:Check New Version%>" onclick="location.href=&quot;<%=luci.dispatcher.build_url('admin', 'system','flashops', 'checkversion')%>&quot;" /    >
+	</form> 
+</div>  
 
 <%+footer%>

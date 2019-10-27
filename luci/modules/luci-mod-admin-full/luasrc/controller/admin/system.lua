@@ -4,6 +4,19 @@
 
 module("luci.controller.admin.system", package.seeall)
 
+local ver = require("luci.version")
+local uci = require("luci.model.uci").cursor()
+local nixio = require("nixio")
+
+local pcall, dofile, _G = pcall, dofile, _G
+
+require "luci.util"
+
+local product_name = ver.distname
+local update_server = uci:get("productinfo", "hardware", "update_server") or "http://www.outdoorrouter.net:8080" 
+local ini_file = ver.distname .. ".ini" 
+local image_tmp = "/tmp/firmware.img"
+
 function index()
 	local fs = require "nixio.fs"
 
@@ -40,6 +53,10 @@ function index()
 	-- call() instead of post() due to upload handling!
 	entry({"admin", "system", "flashops", "restore"}, call("action_restore"))
 	entry({"admin", "system", "flashops", "sysupgrade"}, call("action_sysupgrade"))
+	
+	entry({"admin", "system", "flashops", "checkversion"}, template("admin_system/checkversion"))
+	entry({"admin", "system", "flashops", "checknewversion"}, call("action_download_inifile"))
+	entry({"admin", "system", "flashops", "onlineupgrade"}, call("action_online_upgrade"))
 
 	entry({"admin", "system", "reboot"}, template("admin_system/reboot"), _("Reboot"), 90)
 	entry({"admin", "system", "reboot", "call"}, post("action_reboot"))
@@ -445,4 +462,79 @@ function ltn12_popen(command)
 		fdo:close()
 		nixio.exec("/bin/sh", "-c", command)
 	end
+end
+
+function action_download_inifile()
+	local url = update_server .. "/" .. product_name .. "/" .. ini_file
+	local rv = {}
+	local cur_ver = tonumber(ver.distversion:match("%d+"))
+	luci.util.exec("wget " .. url .. " -O /tmp/firmware.ini")
+
+	if pcall(dofile, "/tmp/firmware.ini") and _G.FIRMWARE_NAME then
+		rv[#rv+1] = {
+			filename = _G.FIRMWARE_NAME,
+			version = _G.FIRMWARE_VERSION,
+			md5sum = _G.FIRMWARE_MD5SUM,
+			size = _G.FIRMWARE_SIZE,
+			desc = _G.DESCRIPTION,
+			errcode = cur_ver >= tonumber(_G.FIRMWARE_VERSION:match("%d+")) and 2 or 0,
+		}
+	else
+		rv[#rv+1] = {
+			filename = "---",
+			version = "---",
+			md5sum = "---",
+			size = "---",
+			desc = "---",
+			errcode = 1,
+		}	
+	end
+	
+	if rv then
+		luci.http.prepare_content("application/json")
+		luci.http.write_json(rv)
+	end
+
+	return
+end
+
+function action_online_upgrade()
+	local fs = require "nixio.fs"
+	local http = require "luci.http"
+	local keep = ""
+	local step = tonumber(http.formvalue("step") or 1)
+	if step == 1 then
+		if pcall(dofile, "/tmp/firmware.ini") and _G.FIRMWARE_NAME then
+			filename = _G.FIRMWARE_NAME
+			version = _G.FIRMWARE_VERSION
+			md5sum = _G.FIRMWARE_MD5SUM
+			size = _G.FIRMWARE_SIZE
+		end
+
+		local url = update_server .. "/" .. product_name .. "/" .. filename 
+		luci.util.exec("wget " .. url .. " -O " .. image_tmp)
+	
+		if image_supported(image_tmp) and md5sum == image_checksum(image_tmp)  then
+			luci.template.render("admin_system/upgrade", {
+				checksum = image_checksum(image_tmp),
+				sha256ch = image_sha256_checksum(image_tmp),
+				storage  = storage_size(),
+				size     = (fs.stat(image_tmp, "size") or 0),
+				keep     = (not not http.formvalue("keep"))
+			})
+		else
+			fs.unlink(image_tmp)
+			luci.template.render("admin_system/error", {
+				image_invalid = true
+			})
+		end
+	elseif step == 2 then
+		luci.template.render("admin_system/applyreboot", {
+			title = luci.i18n.translate("Flashing..."),
+			msg   = luci.i18n.translate("The system will flashing after download firmware.<br /> DO NOT POWER OFF THE DEVICE!<br /> Wait a few minutes before you try to reconnect. It might be necessary to renew the address of your computer to reach the device again, depending on your settings."),
+		})
+		fork_exec("sleep 1; killall dropbear uhttpd lighttpd; sleep 1; /sbin/sysupgrade %s %q" %{ keep, image_tmp })
+	end
+	
+	
 end

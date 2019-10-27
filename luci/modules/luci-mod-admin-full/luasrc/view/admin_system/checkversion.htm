@@ -7,7 +7,7 @@
 <%+header%>
 
 <script type="text/javascript">//<![CDATA[
-XHR.get('<%=build_url("admin/system/onlineupgrade/checknewversion")%>', null,
+XHR.get('<%=build_url("admin/system/flashops/checknewversion")%>', null,
 	function(x, data) {
 		if(data) {
 			for (var idx = 0; idx < data.length; idx++){
@@ -44,7 +44,7 @@ XHR.get('<%=build_url("admin/system/onlineupgrade/checknewversion")%>', null,
 						}
 						var ex5 = document.getElementById('errinfo');
 						if (ex5) {
-							ex5.innerHTML = "server error";
+							ex5.innerHTML = "Oops, unable to obtain the updated firmware version information.";
 						}
 					}
 				}
@@ -136,16 +136,16 @@ XHR.get('<%=build_url("admin/system/onlineupgrade/checknewversion")%>', null,
 		<div class="tr"><div class="td left" width="33%"><%:Size%></div><div class="td left" id="versize">-</div></div>
 	</div>
 	<div id="fwerr" style="display:none;" class="table" width="100%">
-		<div class="tr"><div class="td left" width="33%"><%:Error%></div><div class="td left" id="errinfo">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Server error%>:</div><div class="td left" id="errinfo">-</div></div>
 	</div>
 	<div id="fwsearch" style="display:block;" class="table" width="100%">
 		<div class="tr"><div class="td left" width="1%"></div><div class="td left">Searching latest version from server.</div></div>
 	</div>
 	<div id="fwnew" style="display:none;" class="table" width="100%">
-		<div class="tr"><div class="td left" width="1%"></div><div class="td left">Your firmware is the latest version</div></div>
+		<div class="tr"><div class="td left" width="1%"></div><div class="td left">No updated version available</div></div>
 	</div>
 	<div class="cbi-page-actions right" id="btnupdate" style="display:none;" >
-	<input class="cbi-button cbi-button-prev" type="button" value="<%:Upgrade%>" onclick="location.href=&quot;<%=luci.dispatcher.build_url('admin', 'system','onlineupgrade', 'upgrade')%>&quot;" /    >
+	<input class="cbi-button cbi-button-prev" type="button" value="<%:Download%>" onclick="location.href=&quot;<%=luci.dispatcher.build_url('admin', 'system','flashops', 'onlineupgrade')%>&quot;" /    >
 	</div>
 			<% if image_invalid then %>
 				<div class="cbi-section-error"><%:The uploaded image file does not contain a supported format. Make sure that you choose the generic image format for your platform. %></div>
