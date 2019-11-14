@@ -32,8 +32,6 @@ o:value("p2p_")
 else
 o.readonly = true
 end
-o:value("web")
-o.rmempty = false
 
 o = s:option(ListValue, "type", translate("Type"))
 if sid ~= "outdoorweb"  then

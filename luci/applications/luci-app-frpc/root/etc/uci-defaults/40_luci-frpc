@@ -21,7 +21,7 @@ if [ "x$frpc" != "xmain" ]; then
 fi
 
 serial_number=$(uci get productinfo.hardware.serial_number)
-[ -n "$serial_number" ] && uci set frpc.outdoorweb.subdomain=$serial_number && uci commit frpc
+[ -n "$serial_number" ] && uci set frpc.outdoorweb.subdomain=$serial_number && uci set frpc.outdoorweb.name=WEB_$serial_number && uci commit frpc
 
 rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
 exit 0

@@ -145,7 +145,7 @@ XHR.get('<%=build_url("admin/system/flashops/checknewversion")%>', null,
 		<div class="tr"><div class="td left" width="1%"></div><div class="td left">No updated version available</div></div>
 	</div>
 	<div class="cbi-page-actions right" id="btnupdate" style="display:none;" >
-	<input class="cbi-button cbi-button-prev" type="button" value="<%:Download%>" onclick="location.href=&quot;<%=luci.dispatcher.build_url('admin', 'system','flashops', 'onlineupgrade')%>&quot;" /    >
+	<input class="cbi-button cbi-button-action important" type="button" value="<%:Download%>" onclick="location.href=&quot;<%=luci.dispatcher.build_url('admin', 'system','flashops', 'onlineupgrade')%>&quot;" /    >
 	</div>
 			<% if image_invalid then %>
 				<div class="cbi-section-error"><%:The uploaded image file does not contain a supported format. Make sure that you choose the generic image format for your platform. %></div>
