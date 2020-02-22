@@ -30,6 +30,7 @@ define Package/datacenter/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/datacenter  $(1)/usr/sbin/datacenter
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/leval  $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/qmi  $(1)/usr/lib/lua/ajax/qmi.lua
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/qmiinfo  $(1)/usr/lib/lua/ajax
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/qmisignal  $(1)/usr/lib/lua/ajax

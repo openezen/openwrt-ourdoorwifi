@@ -511,6 +511,11 @@ end
 
 function getqmiinfo(device)
     local rv = {}
+
+	if not fs.access("/dev/cdc-wdm0") then
+		return rv
+	end
+
     local ret = luci.util.exec("uqmi -d /dev/cdc-wdm0  --get-serving-system")
 	local system = js.parse(ret)
 

@@ -1,5 +1,4 @@
-all: datacenter leval
-	$(MAKE) -C ajax
+all: frpc frpctl
 	    
 %_tmp: %.lua
 	$(LUAC) -o $@ $^

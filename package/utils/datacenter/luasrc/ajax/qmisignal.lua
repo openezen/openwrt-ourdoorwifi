@@ -1,5 +1,6 @@
 require 'std'
 
+local fs     = require "nixio.fs"
 local cjson = require 'cjson'
 local js	 = require "luci.jsonc"
 require "luci.util"
@@ -9,6 +10,10 @@ local function get_qmisignal()
 	local device = "/dev/cdc-wdm0"
 	local bandtype
 
+	if not fs.access(device) then
+		return nil
+	end
+	
 	local is_dialing = luci.util.exec("ps | grep uqmi | grep cdc-wdm | grep -v grep")
 	
 	if is_dialing and is_dialing ~= "" then

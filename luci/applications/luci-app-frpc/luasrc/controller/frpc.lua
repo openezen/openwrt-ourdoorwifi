@@ -16,8 +16,9 @@ function index()
 		firstchild(), _("Traversal Cloud")).dependent = false
 
 	entry({"admin", "services", "frpc", "common"},
-		cbi("frpc/common"), _("Settings"), 1)
+		cbi("frpc/common", {hideapplybtn=true, hidesavebtn=true, hideresetbtn=true}), _("Settings"), 1)
 
+--[[
 	entry({"admin", "services", "frpc", "rules"},
 		arcombine(cbi("frpc/rules"), cbi("frpc/rule-detail")),
 		_("Rules"), 2).leaf = true
@@ -25,8 +26,9 @@ function index()
 	entry({"admin", "services", "frpc", "servers"},
 		arcombine(cbi("frpc/servers"), cbi("frpc/server-detail")),
 		_("Servers"), 3).leaf = true
-
+	
 	entry({"admin", "services", "frpc", "status"}, call("action_status"))
+]]--
 end
 
 
