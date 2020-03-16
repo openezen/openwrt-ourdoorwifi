@@ -1,5 +1,27 @@
 #!/bin/sh
 
+change_default_network() {
+	local ret=$(uci -q get network.MOBILE)	
+
+	if [ "$ret" == "interface" ]; then
+		uci delete network.MOBILE
+		uci set network.lan.ifname=eth0
+		uci set network.lan.ipaddr=192.168.10.1
+		uci set network.wan.ifname=eth1
+		uci commit network
+
+		uci delete mwan3.MOBILE
+		uci delete mwan3.MOBILE_m
+		uci delete mwan3.4G_only
+		uci delete mwan3.ALL
+		uci commit mwan3
+
+		uci set system.@system[0].hostname=OutdoorExtender
+		uci commit system
+	fi
+}
+
+
 distname=$(grep DISTRIB_ID /etc/openwrt_release | awk -F= '{print $2}' | sed s/\'//g)
 
 serial_number=$(fw_printenv serial_number|awk -F= '{print $2}')
@@ -16,3 +38,8 @@ serial_number=$(fw_printenv serial_number|awk -F= '{print $2}')
 uci set productinfo.hardware.serial_number=$serial_number
 uci set productinfo.hardware.product_name=$distname
 uci commit productinfo
+
+
+[ "$distname" == "EZR13" ] && change_default_network
+
+exit 0

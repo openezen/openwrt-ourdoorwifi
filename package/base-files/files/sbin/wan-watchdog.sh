@@ -1,5 +1,11 @@
 #!/bin/sh
 	  
+ret=$(uci -q get network.MOBILE)	
+
+if [ "$ret" != "interface" ]; then
+	exit 0
+fi
+
 tries=0
 while [[ $tries -lt 10 ]]
 do

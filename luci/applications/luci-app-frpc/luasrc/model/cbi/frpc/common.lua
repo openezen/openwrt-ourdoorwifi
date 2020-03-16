@@ -12,6 +12,9 @@ m = Map("frpc", translate("Traversal cloud"))
 
 m:append(Template("frpc/status_header"))
 
-s = m:section(SimpleSection)
+s = m:section(NamedSection, "main")
+
+en = s:option(Flag, "enabled", translate("Enable"))
+
 
 return m

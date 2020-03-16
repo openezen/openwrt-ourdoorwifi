@@ -15,8 +15,7 @@ function index()
 	entry({"admin", "services", "frpc"},
 		firstchild(), _("Traversal Cloud")).dependent = false
 
-	entry({"admin", "services", "frpc", "common"},
-		cbi("frpc/common", {hideapplybtn=true, hidesavebtn=true, hideresetbtn=true}), _("Settings"), 1)
+	entry({"admin", "services", "frpc", "common"}, cbi("frpc/common"), _("Settings"), 1)
 
 --[[
 	entry({"admin", "services", "frpc", "rules"},

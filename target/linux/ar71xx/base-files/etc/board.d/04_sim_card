@@ -3,8 +3,10 @@
 # Copyright (C) 2015 OpenWrt.org
 #
 distname=$(grep DISTRIB_ID /etc/openwrt_release | awk -F= '{print $2}' | sed s/\'//g)
-if [ "$distname" == "EZR33" ] ;then
+if [ "$distname" == "EZR33" -o "$distname" == "T30" -o "$distname" == "EZR53" ] ;then
 	uci set productinfo.hardware.simcard_num=2
+elif [ "$distname" == "EZR13" ]; then
+	uci set productinfo.hardware.simcard_num=0
 else
 	uci set productinfo.hardware.simcard_num=1
 fi

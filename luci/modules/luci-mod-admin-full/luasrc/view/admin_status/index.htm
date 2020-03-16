@@ -31,6 +31,9 @@
 		free = 0
 	}
 
+	local simnum = luci.sys.get_simcard_num()
+	local simcard = luci.sys.get_simcard()
+	
 	local has_dsl = fs.access("/etc/init.d/dsl_control")
 
 	if luci.http.formvalue("status") == "1" then
@@ -386,9 +389,11 @@
 }
 </style>
 
+<% if simnum ~= 0 then %>
 <div class="index-row">
 
 <div class="index-column">
+<% end %>
 <h2 name="content"><%:Status%></h2>
 
 <div class="cbi-section">
@@ -414,15 +419,15 @@
 		<div class="tr"><div class="td left" width="33%"><%:Total Available%></div><div class="td left" id="memtotal">-</div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Free%></div><div class="td left" id="memfree">-</div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Buffered%></div><div class="td left" id="membuff">-</div></div>
-	</div>
+	</div> 
 </div>
+<% if simnum ~= 0 then %>
 </div>
+<% end %>
 
+<% if simnum ~= 0 then %>
 <div class="index-column">
 
-<%
-	local simcard = luci.sys.get_simcard()
-%>
   <%+header%>
 
   <script type="text/javascript">//<![CDATA[
@@ -550,7 +555,7 @@
 	<h3><input type="button" class="cbi-button cbi-button-apply" value="REACQUIRE" onclick="reload()"> </h3>
   	<div class="table" width="100%">
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left" id="qmi_model">-</div></div>
-  		<% if simcard then %>
+		<% if simcard then %>
 		<div class="tr"><div class="td left" width="33%"><%:SIM Card%></div><div class="td left" id="qmi_simcard"><%=pcdata(simcard) or "-"%></div></div>
   		<% end %>
   		<div class="tr"><div class="td left" width="33%"><%:IMEI Number%></div><div class="td left" id="qmi_imei">-</div></div>
@@ -572,6 +577,7 @@
 </div>
 
 </div>
+<% end %>
 
 <% if swapinfo.total > 0 then %>
 <div class="cbi-section">

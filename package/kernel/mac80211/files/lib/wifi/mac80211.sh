@@ -107,6 +107,13 @@ detect_mac80211() {
 		fi
 
 		local macaddr=$(cat /sys/class/ieee80211/${dev}/macaddress | awk -F ":" '{print $4""$5""$6 }'| tr a-z A-Z)
+		local distname=$(grep DISTRIB_ID /etc/openwrt_release | awk -F= '{print $2}' | sed s/\'//g)
+		local ssid_prefix
+		if [ "$distname" == "EZR13" ]; then
+			ssid_prefix="Extender"
+		else
+			ssid_prefix="Outdoor"
+		fi
 
 		uci -q batch <<-EOF
 			set wireless.radio${devidx}=wifi-device
@@ -120,7 +127,7 @@ detect_mac80211() {
 			set wireless.default_radio${devidx}.device=radio${devidx}
 			set wireless.default_radio${devidx}.network=lan
 			set wireless.default_radio${devidx}.mode=ap
-			set wireless.default_radio${devidx}.ssid=Outdoor-WiFi-${macaddr}
+			set wireless.default_radio${devidx}.ssid=${ssid_prefix}-WiFi-${macaddr}
 			set wireless.default_radio${devidx}.encryption=none
 EOF
 		uci -q commit wireless
