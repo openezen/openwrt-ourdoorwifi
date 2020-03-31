@@ -24,10 +24,13 @@ local function get_qmiinfo()
     local ret = luci.util.exec("timeout -t 1 uqmi -s -d " .. device  .." --get-serving-system")
 	local system = js.parse(ret)
 
-	if not system or not system.plmn_description then
-		ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --nas-get-home-network | grep Description")
+	ret = luci.util.exec("timeout -t 1 qmicli -d " .. device .. " --nas-get-home-network | grep Description")
+
+	if ret then
 		plmn_desc = ret:match("Description: '([%w-]+)'") 
-	else
+	end
+
+	if not plmn_desc or plmn_desc == "" then
 		plmn_desc = system.plmn_description
 	end
 
