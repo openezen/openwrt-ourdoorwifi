@@ -528,17 +528,61 @@
 				if (e = document.getElementById('qmi_band'))
 					e.innerHTML = info.band
 			if(info.rsrp) 
-				if (e = document.getElementById('qmi_rsrp'))
+				if (e = document.getElementById('qmi_rsrp')) {
 					e.innerHTML = info.rsrp
+					rsrp = info.rsrp.match(/-?\d+/)[0]
+					if(rsrp <= -112){
+						e.style="background-color: #ffcccc";
+					} else if (rsrp >= -111 && rsrp <= -103){
+						e.style="background-color: #ffeecc";
+					} else if (rsrp >= -102 && rsrp <= -85){
+						e.style="background-color: #ffffcc";
+					} else {
+						e.style="background-color: #ddffcc";
+					}
+				}
 			if(info.rsrq) 
-				if (e = document.getElementById('qmi_rsrq'))
+				if (e = document.getElementById('qmi_rsrq')) {
 					e.innerHTML = info.rsrq
+					rsrq = info.rsrq.match(/-?\d+/)[0]
+					if(rsrq <= -11){
+						e.style="background-color: #ffcccc";
+					} else if (rsrq >= -10 && rsrq <= -8){
+						e.style="background-color: #ffeecc";
+					} else if (rsrq >= -7 && rsrq <= -6){
+						e.style="background-color: #ffffcc";
+					} else {
+						e.style="background-color: #ddffcc";
+					}
+				}
 			if(info.rssi) 
-				if (e = document.getElementById('qmi_rssi'))
+				if (e = document.getElementById('qmi_rssi')) {
 					e.innerHTML = info.rssi
+					rssi = info.rssi.match(/-?\d+/)[0]
+					if(rssi <= -85){
+						e.style="background-color: #ffcccc";
+					} else if (rssi >= -84 && rssi <= -75){
+						e.style="background-color: #ffeecc";
+					} else if (rssi >= -74 && rssi <= -65){
+						e.style="background-color: #ffffcc";
+					} else {
+						e.style="background-color: #ddffcc";
+					}
+				}
 			if(info.snr) 
-				if (e = document.getElementById('qmi_snr'))
+				if (e = document.getElementById('qmi_snr')) {
 					e.innerHTML = info.snr
+					snr = info.snr.match(/-?\d+\.\d+/)[0]
+					if(snr >= 12.5){
+						e.style="background-color: #ddffcc";
+					} else if (snr < 12.5 && snr >= 10){
+						e.style="background-color: #ffffcc";
+					} else if (snr < 10 && snr >= 7){
+						e.style="background-color: #ffeecc";
+					} else {
+						e.style="background-color: #ffcccc";
+					}
+				}
 		}
 	});
 
