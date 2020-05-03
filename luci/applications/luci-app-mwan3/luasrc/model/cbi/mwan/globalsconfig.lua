@@ -7,6 +7,10 @@ local net = require "luci.model.network".init()
 m = Map("mwan3", translate("MWAN - Globals"))
 
 s = m:section(NamedSection, "globals", "globals", nil)
+
+o = s:option(Flag, "enabled", translate("Enable"))
+o.default = false
+
 n = s:option(ListValue, "local_source",
 	translate("Local source interface"),
 	translate("Use the IP address of this interface as source IP " ..

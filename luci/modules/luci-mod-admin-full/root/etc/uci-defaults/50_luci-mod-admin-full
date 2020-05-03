@@ -12,9 +12,9 @@ if [ "$(uci -q get luci.diag)" != "internal" ]; then
 
 	uci -q batch <<-EOF >/dev/null
 		set luci.diag=internal
-		set luci.diag.dns='${host:-openwrt.org}'
-		set luci.diag.ping='${host:-openwrt.org}'
-		set luci.diag.route='${host:-openwrt.org}'
+		set luci.diag.dns='www.google.com'
+		set luci.diag.ping='www.google.com'
+		set luci.diag.route='www.google.com'
 		commit luci
 	EOF
 fi

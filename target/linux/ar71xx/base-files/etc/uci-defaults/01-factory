@@ -1,24 +1,37 @@
 #!/bin/sh
 
 change_default_network() {
-	local ret=$(uci -q get network.MOBILE)	
+	local distname=$1
 
-	if [ "$ret" == "interface" ]; then
-		uci delete network.MOBILE
-		uci set network.lan.ifname=eth0
-		uci set network.lan.ipaddr=192.168.10.1
-		uci set network.wan.ifname=eth1
-		uci commit network
-
-		uci delete mwan3.MOBILE
-		uci delete mwan3.MOBILE_m
-		uci delete mwan3.4G_only
-		uci delete mwan3.ALL
-		uci commit mwan3
-
-		uci set system.@system[0].hostname=OutdoorExtender
-		uci commit system
-	fi
+	case $distname in
+		EZR13)
+			local ret=$(uci -q get network.MOBILE)
+			[ "$ret" == "interface" ] && {
+				uci delete network.MOBILE
+				uci set network.lan.ifname=eth0
+				uci set network.lan.ipaddr="192.168.10.1"
+				uci set network.wan.ifname=eth1
+				uci delete mwan3.MOBILE
+				uci delete mwan3.MOBILE_m
+				uci delete mwan3.4G_only
+				uci delete mwan3.ALL
+				uci set system.@system[0].hostname=OutdoorExtender
+				uci commit system
+				uci commit network
+				uci commit mwan3
+			}
+			;;
+		EZR23)
+			local firstboot=$(uci -q get system.@system[0].firstboot)
+			[ -z "$firstboot" ] && {
+				uci set network.lan.ipaddr="192.168.20.1"
+				uci set system.@system[0].hostname=CellularRouter
+				uci set system.@system[0].firstboot=1
+				uci commit network
+				uci commit system
+			}
+			;;
+	esac
 }
 
 
@@ -40,6 +53,6 @@ uci set productinfo.hardware.product_name=$distname
 uci commit productinfo
 
 
-[ "$distname" == "EZR13" ] && change_default_network
+change_default_network "$distname"
 
 exit 0

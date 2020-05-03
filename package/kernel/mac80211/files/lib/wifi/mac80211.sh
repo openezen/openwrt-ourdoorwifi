@@ -111,6 +111,8 @@ detect_mac80211() {
 		local ssid_prefix
 		if [ "$distname" == "EZR13" ]; then
 			ssid_prefix="Extender"
+		elif [ "$distname" == "EZR23" ]; then
+			ssid_prefix="Cellular"
 		else
 			ssid_prefix="Outdoor"
 		fi
