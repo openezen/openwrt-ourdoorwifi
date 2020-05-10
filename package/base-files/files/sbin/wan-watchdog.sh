@@ -1,25 +1,55 @@
 #!/bin/sh
-	  
-ret=$(uci -q get network.MOBILE)	
 
-if [ "$ret" != "interface" ]; then
-	exit 0
-fi
 
-tries=0
-while [[ $tries -lt 10 ]]
-do
-	if `ping -c 1 -w 2 8.8.8.8 > /dev/null` ; then
-		exit 0
+switch_simcard(){
+	local cur=$(uci get network.MOBILE.sim)
+	local sim
+
+	if [ "$cur" == 1 ]; then
+		sim=0
+	else
+		sim=1
 	fi
-	tries=$((tries+1))
+	uci set network.MOBILE.sim=$sim
+	uci commit network
+
+	. /lib/netifd/proto/sim.sh
+	setup_simcard $sim
+}
+
+
+ret=$(uci -q get network.MOBILE)	
+mwan=$(uci -q get mwan3.global.enabled)
+[ "$ret" != "interface" ] && exit 0
+[ "$mwan" == 1 ] && exit 0
+
+ips=$(uci -q get mwan3.MOBILE.track_ip)
+[ -n "$ips" ] || ips="8.8.8.8"
+
+for ip in $ips; do
+	tries=0
+	while [[ $tries -lt 10 ]]
+	do
+		if `ping -c 1 -w 2 $ip > /dev/null` ; then
+			exit 0
+		fi
+		tries=$((tries+1))
+	done
+	break
 done
 					 
 					   
 ifdown MOBILE
 sleep 2
 sim=$(uci get network.MOBILE.sim)
+auto=$(uci get network.MOBILE.simauto)
 date >> /root/reboot.log
-timeout -t 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
-sleep 30
+echo "sim=$sim auto=$auto" >> /root/reboot.log
+
+if [ "$auto" == 1 ]; then
+	switch_simcard
+else
+	timeout -t 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
+	sleep 30
+fi
 ifup MOBILE

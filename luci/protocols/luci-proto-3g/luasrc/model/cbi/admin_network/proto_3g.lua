@@ -28,6 +28,9 @@ if simnum >= 2 then
 	simcard.default="0"
 	simcard:value("0", translate("Primary SIM1"))
 	simcard:value("1", translate("Secondary SIM2"))
+
+	simauto = section:taboption("general", Flag, "simauto", translate("Auto Switch SIM card"), translate("Become effective when disable mwan3"))
+	simauto.default = false
 end
 
 service = section:taboption("general", Value, "service", translate("Service Type"))

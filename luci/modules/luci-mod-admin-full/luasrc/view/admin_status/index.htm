@@ -485,13 +485,47 @@
   		]);
   	}
 
-	function reload(){
-		location.reload();
+	function enable_reload_btn() {
+		document.getElementById('btn_reload').disabled = false;
 	}
 
-	var iwxhr = new XHR();	
-	var url = <%=ajax_path("qmi", "qmiinfo")%>;
-	XHR.poll(30, url, null,function(x, info){
+	function clear_qmiinfo() {
+		var e;
+		document.getElementById('btn_reload').disabled = true;		
+		
+		setTimeout(enable_reload_btn, 5000);
+
+		if (e = document.getElementById('qmi_model'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_imei'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_plmn'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_cellid'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_areaid'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_mcc'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_mnc'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_status'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_roam'))
+			e.innerHTML = "-";		
+		if (e = document.getElementById('qmi_band'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_rsrp'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_rsrq'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_rssi'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_snr'))
+			e.innerHTML = "-";
+	}
+	  
+	function refresh_qmiinfo(info) {
 		if(info) {
 			var e;
 			if(info.model) 
@@ -515,12 +549,10 @@
 			if(info.plmn_mnc != null)
 				if (e = document.getElementById('qmi_mnc'))
 					e.innerHTML = info.plmn_mnc
-		}				
-	
-	});
-	
-	url = <%=ajax_path("qmi", "qmisignal")%>;
-	XHR.poll(10, url, null,function(x, info){
+		}
+	}
+
+ 	function refresh_qmisignal(info) {
 		if(info) {
 			var e;
 			if(info.status) 
@@ -545,6 +577,30 @@
 				if (e = document.getElementById('qmi_snr'))
 					e.innerHTML = info.snr
 		}
+	}
+
+	function reload(){
+		clear_qmiinfo();
+		var url = <%=ajax_path("qmi", "qmiinfo")%>;
+		XHR.get(url, null,function(x, info){
+			refresh_qmiinfo(info);	
+		});
+		url = <%=ajax_path("qmi", "qmisignal")%>;
+		XHR.get(url, null,function(x, info){
+			refresh_qmisignal(info);
+		});
+//		location.reload();
+	}
+
+	var iwxhr = new XHR();	
+	var url = <%=ajax_path("qmi", "qmiinfo")%>;
+	XHR.poll(30, url, null,function(x, info){
+		refresh_qmiinfo(info);	
+	});
+	
+	url = <%=ajax_path("qmi", "qmisignal")%>;
+	XHR.poll(10, url, null,function(x, info){
+		refresh_qmisignal(info);
 	});
 
   //]]></script>
@@ -552,7 +608,7 @@
   <h2 name="content"><%:Device%></h2>
 
   <div class="cbi-section">
-	<h3><input type="button" class="cbi-button cbi-button-apply" value="REACQUIRE" onclick="reload()"> </h3>
+	<h3><input type="button" class="cbi-button cbi-button-apply" value="REACQUIRE" id="btn_reload" onclick="reload()"> </h3>
   	<div class="table" width="100%">
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left" id="qmi_model">-</div></div>
 		<% if simcard then %>
