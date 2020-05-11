@@ -1,5 +1,7 @@
 #!/bin/sh
 
+simnum=$(uci -q get productinfo.hardware.simcard_num)
+
 [ -n "$INCLUDE_ONLY" ] || {
 	NOT_INCLUDED=1
 	INCLUDE_ONLY=1
@@ -20,12 +22,50 @@ proto_3g_init_config() {
 	proto_config_add_string "pincode"
 	proto_config_add_string "dialnumber"
 	proto_config_add_string "sim"
+	[ "$simnum" -ge 2 ] && {
+		proto_config_add_string "apn1"
+		proto_config_add_string "service1"
+		proto_config_add_string "pincode1"
+		proto_config_add_string "dialnumber1"
+
+		proto_config_add_string "apn2"
+		proto_config_add_string "service2"
+		proto_config_add_string "pincode2"
+		proto_config_add_string "dialnumber2"
+	}
+}
+
+fix_sim_config() {
+	local section=$1
+	local sim apn service pincode dialnumber apn1 service1 pincode1 dialnumber1  apn2 service2 pincode2 dialnumber2
+	[ -n "$section" ] || return
+
+	json_get_vars sim apn1 service1 pincode1 dialnumber1 apn2 service2 pincode2 dialnumber2
+	[ "$sim" == "1" ] && {
+		echo "copy sim2 to network" >> /tmp/fixsim.log
+		uci set network.$section.apn=$apn2
+		uci set network.$section.service=$service2
+		uci set network.$section.dialnumber=$dialnumber2
+		uci set network.$section.pincode=$pincode2
+	} || {
+		echo "copy sim1 to network" >> /tmp/fixsim.log
+		uci set network.$section.apn=$apn1
+		uci set network.$section.service=$service1
+		uci set network.$section.dialnumber=$dialnumber1
+		uci set network.$section.pincode=$pincode1
+	}
+	uci commit network
 }
 
 proto_3g_setup() {
 	local interface="$1"
 	local chat
 
+	echo "fix_sim_config simnum=$simnum" > /tmp/fixsim.log
+	[ "$simnum" -ge 2 ] && {
+		fix_sim_config "$interface"
+	}
+	
 	json_get_var device device
 	json_get_var apn apn
 	json_get_var service service

@@ -31,30 +31,52 @@ if simnum >= 2 then
 
 	simauto = section:taboption("general", Flag, "simauto", translate("Auto Switch SIM card"), translate("Become effective when disable mwan3"))
 	simauto.default = false
+
+	section:tab("primary",  translate("Primary SIM1"))
+	section:tab("secondary",  translate("Secondary SIM2"))
+
+	service1 = section:taboption("primary", Value, "service1", translate("Service Type"))
+	service1:value("", translate("-- Please choose --"))
+	service1:value("umts", "UMTS/GPRS")
+	service1:value("umts_only", translate("UMTS only"))
+	service1:value("gprs_only", translate("GPRS only"))
+	service1:value("evdo", "CDMA/EV-DO")
+	apn1 = section:taboption("primary", Value, "apn1", translate("APN"))
+	pincode1 = section:taboption("primary", Value, "pincode1", translate("PIN"))
+	username1 = section:taboption("primary", Value, "username1", translate("PAP/CHAP username"))
+	password1 = section:taboption("primary", Value, "password1", translate("PAP/CHAP password"))
+	password1.password = true
+	dialnumber1 = section:taboption("primary", Value, "dialnumber1", translate("Dial number"))
+	dialnumber1.placeholder = "*99***1#"
+
+	service2 = section:taboption("secondary", Value, "service2", translate("Service Type"))
+	service2:value("", translate("-- Please choose --"))
+	service2:value("umts", "UMTS/GPRS")
+	service2:value("umts_only", translate("UMTS only"))
+	service2:value("gprs_only", translate("GPRS only"))
+	service2:value("evdo", "CDMA/EV-DO")
+	apn2 = section:taboption("secondary", Value, "apn2", translate("APN"))
+	pincode2 = section:taboption("secondary", Value, "pincode2", translate("PIN"))
+	username2 = section:taboption("secondary", Value, "username2", translate("PAP/CHAP username"))
+	password2 = section:taboption("secondary", Value, "password2", translate("PAP/CHAP password"))
+	password2.password = true
+	dialnumber2 = section:taboption("secondary", Value, "dialnumber2", translate("Dial number"))
+	dialnumber2.placeholder = "*99***1#"
+else
+	service = section:taboption("general", Value, "service", translate("Service Type"))
+	service:value("", translate("-- Please choose --"))
+	service:value("umts", "UMTS/GPRS")
+	service:value("umts_only", translate("UMTS only"))
+	service:value("gprs_only", translate("GPRS only"))
+	service:value("evdo", "CDMA/EV-DO")
+	apn = section:taboption("general", Value, "apn", translate("APN"))
+	pincode = section:taboption("general", Value, "pincode", translate("PIN"))
+	username = section:taboption("general", Value, "username", translate("PAP/CHAP username"))
+	password = section:taboption("general", Value, "password", translate("PAP/CHAP password"))
+	password.password = true
+	dialnumber = section:taboption("general", Value, "dialnumber", translate("Dial number"))
+	dialnumber.placeholder = "*99***1#"
 end
-
-service = section:taboption("general", Value, "service", translate("Service Type"))
-service:value("", translate("-- Please choose --"))
-service:value("umts", "UMTS/GPRS")
-service:value("umts_only", translate("UMTS only"))
-service:value("gprs_only", translate("GPRS only"))
-service:value("evdo", "CDMA/EV-DO")
-
-
-apn = section:taboption("general", Value, "apn", translate("APN"))
-
-
-pincode = section:taboption("general", Value, "pincode", translate("PIN"))
-
-
-username = section:taboption("general", Value, "username", translate("PAP/CHAP username"))
-
-
-password = section:taboption("general", Value, "password", translate("PAP/CHAP password"))
-password.password = true
-
-dialnumber = section:taboption("general", Value, "dialnumber", translate("Dial number"))
-dialnumber.placeholder = "*99***1#"
 
 if luci.model.network:has_ipv6() then
 

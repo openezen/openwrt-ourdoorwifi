@@ -1,9 +1,11 @@
 #!/bin/sh
 
+simnum=$(uci -q get productinfo.hardware.simcard_num)
+
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
 	. ../netifd-proto.sh
-	[ -e "/lib/netifd/proto/sim.sh" ] && . /lib/netifd/proto/sim.sh
+	[ -e "/lib/netifd/proto/sim.sh" ] && . /lib/netifd/proto/sim.sh	
 	init_proto "$@"
 }
 
@@ -25,7 +27,45 @@ proto_qmi_init_config() {
 	proto_config_add_int plmn
 	proto_config_add_int timeout
 	proto_config_add_int sim
+	[ "$simnum" -ge 2 ] && {
+		proto_config_add_string apn1
+		proto_config_add_string auth1
+		proto_config_add_string username1
+		proto_config_add_string password1
+		proto_config_add_string pincode1
+		
+		proto_config_add_string apn2
+		proto_config_add_string auth2
+		proto_config_add_string username2
+		proto_config_add_string password2
+		proto_config_add_string pincode2
+	}
 	proto_config_add_defaults
+}
+
+fix_sim_config() {
+	local section=$1
+	local sim apn auth username password pincode apn1 auth1 username1 password1 pincode1 apn2 auth2 username2 password2 pincode2
+	[ -n "$section" ] || return
+
+	json_get_vars sim apn1 auth1 username1 password1 pincode1 apn2 auth2 username2 password2 pincode2
+	echo "sim=$sim apn1=$apn1 apn2=$apn2" >> /tmp/fixsim.log
+	[ "$sim" == "1" ] && {
+		echo "copy sim2 to network" >> /tmp/fixsim.log
+		uci set network.$section.apn=$apn2
+		uci set network.$section.auth=$auth2
+		uci set network.$section.username=$username2
+		uci set network.$section.password=$password2
+		uci set network.$section.pincode=$pincode2
+	} || {
+		echo "copy sim1 to network" >> /tmp/fixsim.log
+		uci set network.$section.apn=$apn1
+		uci set network.$section.auth=$auth1
+		uci set network.$section.username=$username1
+		uci set network.$section.password=$password1
+		uci set network.$section.pincode=$pincode1
+	}
+	uci commit network
 }
 
 proto_qmi_setup() {
@@ -36,6 +76,10 @@ proto_qmi_setup() {
 	local cid_4 pdh_4 cid_6 pdh_6
 	local ip_6 ip_prefix_length gateway_6 dns1_6 dns2_6
 	local sim
+	echo "fix_sim_config simnum=$simnum" > /tmp/fixsim.log
+	[ "$simnum" -ge 2 ] && {
+		fix_sim_config "$interface"
+	}
 	json_get_vars device apn auth username password pincode delay modes pdptype profile dhcpv6 autoconnect plmn ip4table ip6table timeout sim $PROTO_DEFAULT_OPTIONS
 
 	[ "$timeout" = "" ] && timeout="10"
