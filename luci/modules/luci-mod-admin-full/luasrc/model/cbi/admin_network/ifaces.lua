@@ -241,7 +241,7 @@ p_switch.inputstyle = "apply"
 local _, pr
 for _, pr in ipairs(nw:get_protocols()) do
 	if arg[1] == "MOBILE" then
-		if (pr:proto() == "3g" or pr:proto() == "qmi") then
+		if (pr:proto() == "3g" or pr:proto() == "qmi" or pr:proto() == "modemmanager") then
 			p:value(pr:proto(), pr:get_i18n())
 		end
 	else
