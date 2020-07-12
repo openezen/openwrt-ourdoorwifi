@@ -25,7 +25,11 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
+HOST_BUILD_DEPENDS:=libxml2/host
+
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
+
 
 define Package/libxslt
   SECTION:=libs
@@ -146,6 +150,18 @@ define Package/xsltproc/install
 		$(1)/usr/bin/
 endef
 
+HOST_CONFIGURE_ARGS+= \
+		--disable-silent-rules \
+		--enable-static \
+		--without-python \
+		--without-crypto \
+		--without-debug \
+		--with-libxml-prefix=$(STAGING_DIR_HOSTPKG) \
+		--without-mem-debug \
+		--without-debugger
+
+
 $(eval $(call BuildPackage,libxslt))
 $(eval $(call BuildPackage,libexslt))
 $(eval $(call BuildPackage,xsltproc))
+$(eval $(call HostBuild))

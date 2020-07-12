@@ -19,9 +19,11 @@ switch_simcard(){
 
 
 ret=$(uci -q get network.MOBILE)	
+device=$(uci -q get network.MOBILE.device)	
 mwan=$(uci -q get mwan3.global.enabled)
 [ "$ret" != "interface" ] && exit 0
 [ "$mwan" == 1 ] && exit 0
+[ -n "$device" ] || exit 0
 
 ips=$(uci -q get mwan3.MOBILE.track_ip)
 [ -n "$ips" ] || ips="8.8.8.8"
@@ -43,13 +45,16 @@ ifdown MOBILE
 sleep 2
 sim=$(uci get network.MOBILE.sim)
 auto=$(uci get network.MOBILE.simauto)
+modem=$(leval luci.sys.mmcli_get_modem)
 date >> /root/reboot.log
 echo "sim=$sim auto=$auto" >> /root/reboot.log
 
 if [ "$auto" == 1 ]; then
 	switch_simcard
 else
-	timeout -t 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
-	sleep 30
+	[ -n "$modem" ] && { 
+		mmcli -m $modem -r  
+		sleep 30
+	}
 fi
 ifup MOBILE

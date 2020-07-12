@@ -489,7 +489,7 @@
 		document.getElementById('btn_reload').disabled = false;
 	}
 
-	function clear_qmiinfo() {
+/*	function clear_qmiinfo() {
 		var e;
 		document.getElementById('btn_reload').disabled = true;		
 		
@@ -577,30 +577,92 @@
 				if (e = document.getElementById('qmi_snr'))
 					e.innerHTML = info.snr
 		}
+	}*/
+
+	function clear_mminfo() {
+		var e;
+		document.getElementById('btn_reload').disabled = true;		
+		
+		setTimeout(enable_reload_btn, 5000);
+
+		if (e = document.getElementById('qmi_status'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_model'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_roam'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_mcc'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_plmn'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_signal'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_imei'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_cellid'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_simstatus'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_failed_reason'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi_manufacturer'))
+			e.innerHTML = "-";
+		
+	}
+
+ 	function refresh_mminfo(info) {
+		if(info) {
+			var e;
+			if(info.status) 
+				if (e = document.getElementById('qmi_status'))
+					e.innerHTML = info.status;
+			if(info.model) 
+				if (e = document.getElementById('qmi_model'))
+					e.innerHTML = info.model;
+			if(info.roaming) 
+				if (e = document.getElementById('qmi_roam'))
+					e.innerHTML = info.roaming;
+			if(info.plmn) 
+				if (e = document.getElementById('qmi_mcc'))
+					e.innerHTML = info.plmn;
+			if(info.plmn_desc) 
+				if (e = document.getElementById('qmi_plmn'))
+					e.innerHTML = info.plmn_desc;
+			if(info.signal) 
+				if (e = document.getElementById('qmi_signal'))
+					e.innerHTML = info.signal + "%";
+			if(info.imei) 
+				if (e = document.getElementById('qmi_imei'))
+					e.innerHTML = info.imei;
+			if(info.iccid) 
+				if (e = document.getElementById('qmi_cellid'))
+					e.innerHTML = info.iccid;
+			if(info.simstate) 
+				if (e = document.getElementById('qmi_simstatus'))
+					e.innerHTML = info.simstate;
+			if(info.failed_reason)
+				if (e = document.getElementById('qmi_failed_reason'))
+					e.innerHTML = info.failed_reason;
+			if(info.manufacturer) 
+				if (e = document.getElementById('qmi_manufacturer'))
+					e.innerHTML = info.manufacturer;
+		}
 	}
 
 	function reload(){
-		clear_qmiinfo();
-		var url = <%=ajax_path("qmi", "qmiinfo")%>;
+		clear_mminfo();
+		url = <%=ajax_path("mminfo", "mminfo")%>;
 		XHR.get(url, null,function(x, info){
-			refresh_qmiinfo(info);	
-		});
-		url = <%=ajax_path("qmi", "qmisignal")%>;
-		XHR.get(url, null,function(x, info){
-			refresh_qmisignal(info);
+			refresh_mminfo(info);
 		});
 //		location.reload();
 	}
 
 	var iwxhr = new XHR();	
-	var url = <%=ajax_path("qmi", "qmiinfo")%>;
-	XHR.poll(30, url, null,function(x, info){
-		refresh_qmiinfo(info);	
-	});
 	
-	url = <%=ajax_path("qmi", "qmisignal")%>;
+	url = <%=ajax_path("mminfo", "mminfo")%>;
 	XHR.poll(10, url, null,function(x, info){
-		refresh_qmisignal(info);
+		refresh_mminfo(info);
 	});
 
   //]]></script>
@@ -610,23 +672,20 @@
   <div class="cbi-section">
 	<h3><input type="button" class="cbi-button cbi-button-apply" value="REACQUIRE" id="btn_reload" onclick="reload()"> </h3>
   	<div class="table" width="100%">
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Manufaturer%></div><div class="td left" id="qmi_manufacturer">-</div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left" id="qmi_model">-</div></div>
 		<% if simcard then %>
 		<div class="tr"><div class="td left" width="33%"><%:SIM Card%></div><div class="td left" id="qmi_simcard"><%=pcdata(simcard) or "-"%></div></div>
   		<% end %>
+		<div class="tr"><div class="td left" width="33%"><%:SIM Status%></div><div class="td left" id="qmi_simstatus">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Failed Reason%></div><div class="td left" id="qmi_failed_reason">-</div></div>
   		<div class="tr"><div class="td left" width="33%"><%:IMEI Number%></div><div class="td left" id="qmi_imei">-</div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Operator%></div><div class="td left" id="qmi_plmn">-</div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Connection%></div><div style="text-transform: capitalize;" class="td left" id="qmi_status">-</div></div>
-		<div class="tr"><div class="td left" width="33%"><%:Network Band%></div><div class="td left" id="qmi_band">-</div></div>
       <div class="tr"><div class="td left" width="33%"><%:Roaming%></div><div style="text-transform: capitalize;" class="td left" id="qmi_roam">-</div></div>
       <div class="tr"><div class="td left" width="33%"><%:Global Cell ID%></div><div class="td left" id="qmi_cellid">-</div></div>
-      <div class="tr"><div class="td left" width="33%"><%:Location Area Code%></div><div class="td left" id="qmi_areaid">-</div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:MCC%></div><div class="td left" id="qmi_mcc">-</div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:MNC%></div><div class="td left" id="qmi_mnc">-</div></div>
-  		<div class="tr"><div class="td left" width="33%"><%:RSRP (Signal Strength)%></div><div class="td left" id="qmi_rsrp">-</div></div>
-      <div class="tr"><div class="td left" width="33%"><%:RSRQ%></div><div class="td left" id="qmi_rsrq">-</div></div>
-      <div class="tr"><div class="td left" width="33%"><%:RSSI%></div><div class="td left" id="qmi_rssi">-</div></div>
-      <div class="tr"><div class="td left" width="33%"><%:SNR%></div><div class="td left" id="qmi_snr">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Operator ID%></div><div class="td left" id="qmi_mcc">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Signal Strength%></div><div class="td left" id="qmi_signal">-</div></div>
   	</div>
   </div>
 

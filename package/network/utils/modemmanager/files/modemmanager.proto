@@ -4,10 +4,13 @@
 [ -x /usr/bin/mmcli ] || exit 0
 [ -x /usr/sbin/pppd ] || exit 0
 
+simnum=$(uci -q get productinfo.hardware.simcard_num)
+
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
 	. ../netifd-proto.sh
 	. ./ppp.sh
+	[ -e "/lib/netifd/proto/sim.sh" ] && . /lib/netifd/proto/sim.sh	
 	init_proto "$@"
 }
 
@@ -311,8 +314,56 @@ proto_modemmanager_init_config() {
 	proto_config_add_string	 password
 	proto_config_add_string	 pincode
 	proto_config_add_string	 iptype
+	proto_config_add_string	 sim
 	proto_config_add_boolean lowpower
+	
+	[ "$simnum" -ge 2 ] && {
+		proto_config_add_string	 apn1
+		proto_config_add_string	 username1
+		proto_config_add_string	 password1
+		proto_config_add_string	 pincode1
+		proto_config_add_string	 iptype1
+		proto_config_add_string	 auth1
+	
+		proto_config_add_string	 apn2
+		proto_config_add_string	 username2
+		proto_config_add_string	 password2
+		proto_config_add_string	 pincode2
+		proto_config_add_string	 iptype2
+		proto_config_add_string	 auth2
+	}
+
 	proto_config_add_defaults
+}
+
+fix_sim_config() {
+	local section=$1
+	local sim apn auth username password pincode 
+	local apn1 username1 password1 pincode1 iptype1 auth1 
+	local apn2 username2 password2 pincode2 iptype2 auth2
+	[ -n "$section" ] || return
+
+	json_get_vars sim apn1 username1 password1 pincode1 iptype1 
+	json_get_vars apn2 username2 password2 pincode2 iptype2
+	echo "sim=$sim apn1=$apn1 apn2=$apn2" >> /tmp/fixsim.log
+	[ "$sim" == "1" ] && {
+		echo "copy sim2 to network" >> /tmp/fixsim.log
+		uci set network.$section.apn=$apn2
+		uci set network.$section.auth=$auth2
+		uci set network.$section.iptype=$iptype2
+		uci set network.$section.username=$username2
+		uci set network.$section.password=$password2
+		uci set network.$section.pincode=$pincode2
+	} || {
+		echo "copy sim1 to network" >> /tmp/fixsim.log
+		uci set network.$section.apn=$apn1
+		uci set network.$section.auth=$auth1
+		uci set network.$section.iptype=$iptype1
+		uci set network.$section.username=$username1
+		uci set network.$section.password=$password1
+		uci set network.$section.pincode=$pincode1
+	}
+	uci commit network
 }
 
 proto_modemmanager_setup() {
@@ -325,9 +376,14 @@ proto_modemmanager_setup() {
 	local device apn username password pincode iptype metric
 
 	local address prefix gateway mtu dns1 dns2
+	
+	echo "fix_sim_config simnum=$simnum" > /tmp/fixsim.log
+	[ "$simnum" -ge 2 ] && {
+		fix_sim_config "$interface"
+	}
 
-	json_get_vars device apn username password pincode iptype metric
-
+	json_get_vars device apn username password pincode iptype metric sim
+	
 	# validate sysfs path given in config
 	[ -n "${device}" ] || {
 		echo "No device specified"
@@ -340,6 +396,9 @@ proto_modemmanager_setup() {
 		proto_set_available "${interface}" 0
 		return 1
 	}
+	
+	echo "sim=$sim" >> /tmp/sim.log
+	[ -n "$sim" ] && setup_simcard $sim	
 
 	# validate that ModemManager is handling the modem at the sysfs path
 	modemstatus=$(mmcli --modem="${device}" --output-keyvalue)

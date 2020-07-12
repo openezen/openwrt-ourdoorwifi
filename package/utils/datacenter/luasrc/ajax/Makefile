@@ -1,4 +1,4 @@
-all: qmi qmiinfo qmisignal
+all: qmi qmiinfo qmisignal mmcli mminfo
 	    
 %_tmp: %.lua
 	$(LUAC) -o $@ $^

@@ -51,7 +51,6 @@ function mounts()
 			-- this is a rather ugly workaround to cope with wrapped lines in
 			-- the df output:
 			--
-			--	/dev/scsi/host0/bus0/target0/lun0/part3
 			--                   114382024  93566472  15005244  86% /mnt/usb
 			--
 
@@ -571,4 +570,39 @@ end
 
 function init.stop(name)
 	return (init_action("stop", name) == 0)
+end
+
+function mmcli_get_modem()
+	local ret = luci.util.exec("mmcli -J -L")
+	if ret then
+		local list = js.parse(ret)
+		if list["modem-list"] then
+			return list["modem-list"][1]
+		end
+	end
+	
+	return nil
+end
+
+function mmcli_get_device()
+	local modem = mmcli_get_modem()
+	local modem_info	
+	if not modem then
+		return nil
+	end
+
+	local ret = luci.util.exec("mmcli -J -m " .. modem)
+	if ret and ret ~= "" then
+		modem_info = js.parse(ret)
+	end
+
+	if not modem_info or not modem_info["modem"] then
+		return nil
+	end
+
+	if modem_info["modem"]["generic"] then
+		local device = modem_info["modem"]["generic"]["device"]
+		return device
+	end	
+	return nil
 end

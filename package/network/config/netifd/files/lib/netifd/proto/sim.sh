@@ -7,8 +7,13 @@ setup_simcard()
 {
 	config=$1
 	[ -e "/sys/class/leds/$SIMSWITCT" ] || return 
-	[ -e "/dev/cdc-wdm0" ] || return
 
+	modem=$(leval luci.sys.mmcli_get_modem)
+	[ -n "$modem" ] || {
+		echo "modem not found" >> /tmp/sim.log 
+		return
+	}
+	
 	status=$(cat /sys/class/leds/$SIMSWITCH/brightness)
 	echo "status=$status, config=$config" >> /tmp/sim.log
 	
@@ -23,8 +28,10 @@ setup_simcard()
 		echo 1 > /sys/class/leds/$SIM1_LED/brightness
 		echo 0 > /sys/class/leds/$SIM2_LED/brightness
 	fi
+	modem=$(leval luci.sys.mmcli_get_modem)
+	[ -n "$modem" ] || modem=0
 
 	sleep 2
-	timeout -t 2 uqmi -d /dev/cdc-wdm0  --set-device-operating-mode reset 
+	mmcli -m $modem -r  
 	sleep 30
 }

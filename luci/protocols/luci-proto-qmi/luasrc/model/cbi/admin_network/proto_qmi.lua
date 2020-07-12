@@ -10,6 +10,9 @@ local simnum = luci.sys.get_simcard_num()
 device = section:taboption("general", Value, "device", translate("Modem device"))
 device.rmempty = false
 
+ac = section:taboption("general", Flag, "autoconnect", translate("Auto connect"))
+ac.default = true
+
 local device_suggestions = nixio.fs.glob("/dev/cdc-wdm*")
 
 if device_suggestions then

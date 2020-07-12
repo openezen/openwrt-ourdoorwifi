@@ -32,6 +32,67 @@ change_default_network() {
 			}
 			;;
 	esac
+	
+	local proto=$(uci -q get network.MOBILE.proto)
+	[ "$proto" == "qmi" -o "$proto" == "3g" ] && {
+		uci set network.MOBILE.proto="modemmanager"
+		uci set network.MOBILE.device=""
+		uci commit network
+	}
+}
+
+fix_sim_config() {
+	local dist=$1
+	local apn apn1 apn2 simno simnum
+	local auth username password pincode 
+	local service dialnumber
+
+	simnum=$(uci -q get productinfo.hardware.simcard_num)
+
+	[ "$simnum" -ge 2 ] || return
+
+	apn=$(uci -q get network.MOBILE.apn)
+	[ -n "$apn" ] || return
+
+	apn1=$(uci -q get network.MOBILE.apn1)
+	apn2=$(uci -q get network.MOBILE.apn2)
+
+	[ -z "$apn1" ] && [ -z "$apn2" ] && {
+		simno=$(uci -q get network.MOBILE.sim)
+		if [ "$simno" == 1 ]; then
+			auth=$(uci -q get network.MOBILE.auth)
+			username=$(uci -q get network.MOBILE.username)
+			password=$(uci -q get network.MOBILE.password)
+			pincode=$(uci -q get network.MOBILE.pincode)
+			service=$(uci -q get network.MOBILE.service)
+			dialnumber=$(uci -q get network.MOBILE.dialnumber)
+
+			uci set network.MOBILE.apn2=$apn
+			[ -n "$auth" ] && uci set network.MOBILE.auth2=$auth
+			[ -n "$username" ] && uci set network.MOBILE.username2=$username
+			[ -n "$password" ] && uci set network.MOBILE.password2=$password
+			[ -n "$pincode" ] && uci set network.MOBILE.pincode2=$pincode
+			[ -n "$service" ] && uci set network.MOBILE.service2=$service
+			[ -n "$dialnumber" ] && uci set network.MOBILE.dialnumber2=$dialnumber
+		else
+			auth=$(uci -q get network.MOBILE.auth)
+			username=$(uci -q get network.MOBILE.username)
+			password=$(uci -q get network.MOBILE.password)
+			pincode=$(uci -q get network.MOBILE.pincode)
+			service=$(uci -q get network.MOBILE.service)
+			dialnumber=$(uci -q get network.MOBILE.dialnumber)
+			
+			uci set network.MOBILE.apn1=$apn
+			[ -n "$auth" ] && uci set network.MOBILE.auth1=$auth
+			[ -n "$username" ] && uci set network.MOBILE.username1=$username
+			[ -n "$password" ] && uci set network.MOBILE.password1=$password
+			[ -n "$pincode" ] && uci set network.MOBILE.pincode1=$pincode
+			[ -n "$service" ] && uci set network.MOBILE.service1=$service
+			[ -n "$dialnumber" ] && uci set network.MOBILE.dialnumber1=$dialnumber
+		fi
+
+		uci commit network
+	}
 }
 
 
@@ -54,5 +115,6 @@ uci commit productinfo
 
 
 change_default_network "$distname"
+fix_sim_config "$distname"
 
 exit 0

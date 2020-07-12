@@ -894,6 +894,21 @@ endef
 $(eval $(call KernelPackage,usb-serial-qualcomm))
 
 
+define KernelPackage/usb-serial-serria
+  TITLE:=Support for SERRIA USB serial
+  KCONFIG:=CONFIG_USB_SERIAL_SERRIA
+  FILES:=$(LINUX_DIR)/drivers/usb/serial/GobiSerial.ko
+  AUTOLOAD:=$(call AutoProbe,GobiSerial)
+  $(call AddDepends/usb-serial,+kmod-usb-serial-wwan)
+endef
+
+define KernelPackage/usb-serial-serria/description
+ Kernel support for SERRIA USB Serial devices (Gobi)
+endef
+
+$(eval $(call KernelPackage,usb-serial-serria))
+
+
 define KernelPackage/usb-storage
   TITLE:=USB Storage support
   DEPENDS:= +kmod-scsi-core

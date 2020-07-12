@@ -34,6 +34,8 @@ define Package/datacenter/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/qmi  $(1)/usr/lib/lua/ajax/qmi.lua
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/qmiinfo  $(1)/usr/lib/lua/ajax
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/qmisignal  $(1)/usr/lib/lua/ajax
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/mminfo  $(1)/usr/lib/lua/ajax/mminfo.lua
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/luasrc/ajax/mmcli  $(1)/usr/lib/lua/ajax
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/datacenter.init  $(1)/etc/init.d/datacenter
 endef
 
