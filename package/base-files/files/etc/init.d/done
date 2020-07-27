@@ -2,6 +2,22 @@
 # Copyright (C) 2006 OpenWrt.org
 
 START=95
+
+
+init_mmcli_device() {
+	local device=$(uci -q get network.MOBILE.device)
+	[ -n "$device" ] || {
+		device=$(leval luci.sys.mmcli_get_device)
+		[ -n "$device" ] || {
+			sleep 20
+			device=$(leval luci.sys.mmcli_get_device)
+		}
+		uci set network.MOBILE.device="$device"
+		uci commit network
+		ifup MOBILE
+	}	
+}
+
 boot() {
 	mount_root done
 	rm -f /sysupgrade.tgz
@@ -14,4 +30,6 @@ boot() {
 	# set leds to normal state
 	. /etc/diag.sh
 	set_state done
+	
+	init_mmcli_device
 }
