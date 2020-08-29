@@ -401,7 +401,7 @@
 
 	<div class="table" width="100%">
 		<div class="tr"><div class="td left" width="33%"><%:Hostname%></div><div class="td left"><%=luci.sys.hostname() or "?"%></div></div>
-		<div class="tr"><div class="td left" width="33%"><%:Model%></div><div class="td left"><%=pcdata(ver.distname or "?")%></div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Model%></div><div class="td left"><%=pcdata(ver.distoemname or ver.distname or "?")%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Serial Number%></div><div class="td left"><%=luci.sys.serial_number() or "?"%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Architecture%></div><div class="td left"><%=pcdata(boardinfo.system or "?")%></div></div>
 		<div class="tr"><div class="td left" width="33%"><%:Firmware Version%></div><div class="td left"><%=pcdata(ver.distversion)%></div></div>
@@ -672,7 +672,7 @@
   <div class="cbi-section">
 	<h3><input type="button" class="cbi-button cbi-button-apply" value="REACQUIRE" id="btn_reload" onclick="reload()"> </h3>
   	<div class="table" width="100%">
-  		<div class="tr"><div class="td left" width="33%"><%:Mobile Manufaturer%></div><div class="td left" id="qmi_manufacturer">-</div></div>
+  		<div class="tr"><div class="td left" width="33%"><%:Mobile Manufacturer%></div><div class="td left" id="qmi_manufacturer">-</div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left" id="qmi_model">-</div></div>
 		<% if simcard then %>
 		<div class="tr"><div class="td left" width="33%"><%:SIM Card%></div><div class="td left" id="qmi_simcard"><%=pcdata(simcard) or "-"%></div></div>

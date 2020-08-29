@@ -163,6 +163,10 @@ if VERSIONOPT
 			This is the name of the release distribution.
 			If unspecified, it defaults to OpenWrt.
 
+	config VERSION_NAME
+		string
+		prompt "Release name"
+
 	config VERSION_NUMBER
 		string
 		prompt "Release version number"

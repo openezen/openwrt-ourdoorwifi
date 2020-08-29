@@ -22,6 +22,7 @@ PKG_CONFIG_DEPENDS += \
 	CONFIG_VERSION_PRODUCT \
 	CONFIG_VERSION_SUPPORT_URL \
 	CONFIG_VERSION_HWREV \
+	CONFIG_VERSION_NAME \
 
 sanitize = $(call tolower,$(subst _,-,$(subst $(space),-,$(1))))
 
@@ -37,6 +38,8 @@ VERSION_REPO:=$(if $(VERSION_REPO),$(VERSION_REPO),http://downloads.openwrt.org/
 VERSION_DIST:=$(call qstrip,$(CONFIG_VERSION_DIST))
 VERSION_DIST:=$(if $(VERSION_DIST),$(VERSION_DIST),OpenWrt)
 VERSION_DIST_SANITIZED:=$(call sanitize,$(VERSION_DIST))
+
+VERSION_NAME:=$(call qstrip,$(CONFIG_VERSION_NAME))
 
 VERSION_MANUFACTURER:=$(call qstrip,$(CONFIG_VERSION_MANUFACTURER))
 VERSION_MANUFACTURER:=$(if $(VERSION_MANUFACTURER),$(VERSION_MANUFACTURER),OpenWrt)
@@ -107,5 +110,6 @@ VERSION_SED_SCRIPT:=$(SED) 's,%U,$(call sed_escape,$(VERSION_REPO)),g' \
 	-e 's,%u,$(call sed_escape,$(VERSION_HOME_URL)),g' \
 	-e 's,%s,$(call sed_escape,$(VERSION_SUPPORT_URL)),g' \
 	-e 's,%P,$(call sed_escape,$(VERSION_PRODUCT)),g' \
-	-e 's,%h,$(call sed_escape,$(VERSION_HWREV)),g'
+	-e 's,%h,$(call sed_escape,$(VERSION_HWREV)),g' \
+	-e 's,%N,$(call sed_escape,$(VERSION_NAME)),g'
 
