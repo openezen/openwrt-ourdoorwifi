@@ -566,8 +566,8 @@ CONFIG_TARGET_INIT_CMD="/sbin/init"
 CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 CONFIG_VERSIONOPT=y
 CONFIG_VERSION_DIST="EZR33"
-CONFIG_VERSION_NAME=""
-CONFIG_VERSION_NUMBER="EV3118"
+CONFIG_VERSION_NAME="LT-OTR-4G2S"
+CONFIG_VERSION_NUMBER="EV3117"
 CONFIG_VERSION_CODE=""
 CONFIG_VERSION_REPO="http://downloads.openwrt.org/releases/18.06.2"
 CONFIG_VERSION_HOME_URL=""
@@ -2982,7 +2982,6 @@ CONFIG_PACKAGE_kmod-ipt-dhcpmac=m
 CONFIG_PACKAGE_kmod-ipt-dnetmap=m
 CONFIG_PACKAGE_kmod-ipt-extra=m
 CONFIG_PACKAGE_kmod-ipt-filter=m
-CONFIG_PACKAGE_kmod-ipt-fullconenat=y
 CONFIG_PACKAGE_kmod-ipt-fuzzy=m
 CONFIG_PACKAGE_kmod-ipt-geoip=m
 CONFIG_PACKAGE_kmod-ipt-hashlimit=m
@@ -4682,7 +4681,7 @@ CONFIG_PACKAGE_luci-app-upnp=y
 # 4. Themes
 #
 CONFIG_PACKAGE_luci-theme-bootstrap=y
-CONFIG_PACKAGE_luci-theme-ezengreen=y
+# CONFIG_PACKAGE_luci-theme-ezengreen is not set
 # CONFIG_PACKAGE_luci-theme-freifunk-generic is not set
 CONFIG_PACKAGE_luci-theme-lamatel=y
 # CONFIG_PACKAGE_luci-theme-material is not set
@@ -5048,7 +5047,6 @@ CONFIG_PACKAGE_iptables-mod-conntrack-extra=y
 # CONFIG_PACKAGE_iptables-mod-dnetmap is not set
 CONFIG_PACKAGE_iptables-mod-extra=m
 CONFIG_PACKAGE_iptables-mod-filter=m
-CONFIG_PACKAGE_iptables-mod-fullconenat=y
 # CONFIG_PACKAGE_iptables-mod-fuzzy is not set
 # CONFIG_PACKAGE_iptables-mod-geoip is not set
 CONFIG_PACKAGE_iptables-mod-hashlimit=m
