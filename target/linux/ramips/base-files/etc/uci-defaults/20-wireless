@@ -1,0 +1,7 @@
+#!/bin/sh
+
+[ -f "/etc/config/wireless" ] && return
+
+wifi config > /etc/config/wireless
+
+exit 0

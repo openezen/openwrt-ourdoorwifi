@@ -1,0 +1,8 @@
+This daemon need for support band steering of ralink/mediatek wireless modules.
+
+Now used copy of GPL source code from wpa_supplicant, netlink and event loop as part of daemon.
+Therefore the requirement about nondisclosure is illegal.
+
+The project code shall be or is licensed as GPL. Or part GPL shall be excluded from the project all.
+
+See https://www.gnu.org/licenses/gpl.txt and send any claims to GNU.
