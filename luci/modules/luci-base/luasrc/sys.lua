@@ -507,6 +507,16 @@ function get_simcard(self)
 	end
 end
 
+function get_modem_num()
+	local cur = uci.cursor()
+	local num = cur:get("productinfo", "hardware", "modem_num")
+	if num then
+		return tonumber(num)
+	else
+		return 1
+	end
+end
+
 
 function getqmiinfo(device)
     local rv = {}
@@ -577,7 +587,7 @@ function mmcli_get_modem()
 	if ret then
 		local list = js.parse(ret)
 		if list["modem-list"] then
-			return list["modem-list"][1]
+			return list["modem-list"]
 		end
 	end
 	
@@ -591,7 +601,7 @@ function mmcli_get_device()
 		return nil
 	end
 
-	local ret = luci.util.exec("mmcli -J -m " .. modem)
+	local ret = luci.util.exec("mmcli -J -m " .. modem[2])
 	if ret and ret ~= "" then
 		modem_info = js.parse(ret)
 	end

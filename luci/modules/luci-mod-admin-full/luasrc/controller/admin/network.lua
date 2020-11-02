@@ -64,7 +64,14 @@ function index()
 			page = entry({"admin", "network", "wireless_scan_results"}, call("wifi_scan_results"), nil)
 			page.leaf = true
 
-			page = entry({"admin", "network", "wireless"}, arcombine(cbi("admin_network/wifi_overview"), cbi("admin_network/wifi")), _("Wireless"), 15)
+			local vendor = uci:get("wireless", "@wifi-device[0]", "vendor")
+			if vendor == "ralink" then
+				url = "admin_network/wifi_mtk"
+			else
+				url = "admin_network/wifi"
+			end
+
+			page = entry({"admin", "network", "wireless"}, arcombine(cbi("admin_network/wifi_overview"), cbi(url)), _("Wireless"), 15)
 			page.leaf = true
 			page.subindex = true
 

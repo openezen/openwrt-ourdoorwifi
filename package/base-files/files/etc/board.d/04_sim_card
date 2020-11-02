@@ -11,5 +11,9 @@ else
 	uci set productinfo.hardware.simcard_num=1
 fi
 
+if [ "$distname" == "EZR43" ]; then
+	uci set productinfo.hardware.modem_num=2
+fi
+
 uci commit productinfo
 exit 0

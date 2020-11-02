@@ -168,6 +168,9 @@ get_status_led() {
 	miwifi-nano)
 		status_led="$boardname:blue:status"
 		;;
+	ezr4x)
+		status_led="ezr4x:status"
+		;;
 	db-wrt01|\
 	esr-9753|\
 	pbr-d1)

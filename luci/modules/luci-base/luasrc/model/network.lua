@@ -21,7 +21,7 @@ module "luci.model.network"
 
 IFACE_PATTERNS_VIRTUAL  = { }
 IFACE_PATTERNS_IGNORE   = { "^wmaster%d", "^wifi%d", "^hwsim%d", "^imq%d", "^ifb%d", "^mon%.wlan%d", "^sit%d", "^gre%d", "^gretap%d", "^ip6gre%d", "^ip6tnl%d", "^tunl%d", "^lo$" }
-IFACE_PATTERNS_WIRELESS = { "^wlan%d", "^wl%d", "^ath%d", "^%w+%.network%d" }
+IFACE_PATTERNS_WIRELESS = { "^wlan%d", "^wl%d", "^ath%d", "^%w+%.network%d", "^ra%d", "^rai%d"}
 
 IFACE_ERRORS = {
 	CONNECT_FAILED			= lng.translate("Connection attempt failed"),

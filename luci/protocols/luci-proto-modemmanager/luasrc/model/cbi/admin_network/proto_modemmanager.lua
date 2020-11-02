@@ -14,10 +14,12 @@ device.rmempty = false
 
 -- Supports only one modem that has already been registered by MM.  Ensures the modem is usable.
 -- Assumes modem is on index 0
+--[[
 local modem = luci.sys.mmcli_get_modem()
 if not modem or modem == "" then
 	modem = 0
 end
+
 
 local handle = io.popen("mmcli -m " .. modem .. " | grep 'device: ' | grep -Eo '/sys/devices/.*' | tr -d \"'\"", "r")
 local device_suggestions = handle:read("*l")
@@ -27,6 +29,7 @@ if handle then
 	device:value(device_suggestions)
 	device.default=device_suggestions
 end
+]]--
 
 if simnum >= 2 then
 	simcard = section:taboption("general", ListValue, "sim", translate("Active SIM Card"))

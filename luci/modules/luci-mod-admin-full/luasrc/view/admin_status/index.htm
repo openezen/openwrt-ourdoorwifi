@@ -33,6 +33,7 @@
 
 	local simnum = luci.sys.get_simcard_num()
 	local simcard = luci.sys.get_simcard()
+	local modem_num = luci.sys.get_modem_num()
 	
 	local has_dsl = fs.access("/etc/init.d/dsl_control")
 
@@ -607,45 +608,149 @@
 			e.innerHTML = "-";
 		if (e = document.getElementById('qmi_manufacturer'))
 			e.innerHTML = "-";
+
+		if (e = document.getElementById('qmi2_status'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_model'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_roam'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_mcc'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_plmn'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_signal'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_imei'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_cellid'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_simstatus'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_failed_reason'))
+			e.innerHTML = "-";
+		if (e = document.getElementById('qmi2_manufacturer'))
+			e.innerHTML = "-";
 		
 	}
 
- 	function refresh_mminfo(info) {
-		if(info) {
-			var e;
-			if(info.status) 
-				if (e = document.getElementById('qmi_status'))
-					e.innerHTML = info.status;
-			if(info.model) 
-				if (e = document.getElementById('qmi_model'))
-					e.innerHTML = info.model;
-			if(info.roaming) 
-				if (e = document.getElementById('qmi_roam'))
-					e.innerHTML = info.roaming;
-			if(info.plmn) 
-				if (e = document.getElementById('qmi_mcc'))
-					e.innerHTML = info.plmn;
-			if(info.plmn_desc) 
-				if (e = document.getElementById('qmi_plmn'))
-					e.innerHTML = info.plmn_desc;
-			if(info.signal) 
-				if (e = document.getElementById('qmi_signal'))
-					e.innerHTML = info.signal + "%";
-			if(info.imei) 
-				if (e = document.getElementById('qmi_imei'))
-					e.innerHTML = info.imei;
-			if(info.iccid) 
-				if (e = document.getElementById('qmi_cellid'))
-					e.innerHTML = info.iccid;
-			if(info.simstate) 
-				if (e = document.getElementById('qmi_simstatus'))
-					e.innerHTML = info.simstate;
-			if(info.failed_reason)
-				if (e = document.getElementById('qmi_failed_reason'))
-					e.innerHTML = info.failed_reason;
-			if(info.manufacturer) 
-				if (e = document.getElementById('qmi_manufacturer'))
-					e.innerHTML = info.manufacturer;
+ 	function refresh_mminfo(data) {
+		if(data) {
+			if (data.length >= 2) {
+				var i = 0;
+				for(; i < data.length; i++) {
+					info = data[i];
+					
+					if(i == 0) {
+						var e;
+						if(info.status) 
+							if (e = document.getElementById('qmi_status'))
+								e.innerHTML = info.status;
+						if(info.model) 
+							if (e = document.getElementById('qmi_model'))
+								e.innerHTML = info.model;
+						if(info.roaming) 
+							if (e = document.getElementById('qmi_roam'))
+								e.innerHTML = info.roaming;
+						if(info.plmn) 
+							if (e = document.getElementById('qmi_mcc'))
+								e.innerHTML = info.plmn;
+						if(info.plmn_desc) 
+							if (e = document.getElementById('qmi_plmn'))
+								e.innerHTML = info.plmn_desc;
+						if(info.signal) 
+							if (e = document.getElementById('qmi_signal'))
+								e.innerHTML = info.signal + "%";
+						if(info.imei) 
+							if (e = document.getElementById('qmi_imei'))
+								e.innerHTML = info.imei;
+						if(info.iccid) 
+							if (e = document.getElementById('qmi_cellid'))
+								e.innerHTML = info.iccid;
+						if(info.simstate) 
+							if (e = document.getElementById('qmi_simstatus'))
+								e.innerHTML = info.simstate;
+						if(info.failed_reason)
+							if (e = document.getElementById('qmi_failed_reason'))
+								e.innerHTML = info.failed_reason;
+						if(info.manufacturer) 
+							if (e = document.getElementById('qmi_manufacturer'))
+								e.innerHTML = info.manufacturer;
+					} else if(i == 1) {
+						var e;
+						if(info.status) 
+							if (e = document.getElementById('qmi2_status'))
+								e.innerHTML = info.status;
+						if(info.model) 
+							if (e = document.getElementById('qmi2_model'))
+								e.innerHTML = info.model;
+						if(info.roaming) 
+							if (e = document.getElementById('qmi2_roam'))
+								e.innerHTML = info.roaming;
+						if(info.plmn) 
+							if (e = document.getElementById('qmi2_mcc'))
+								e.innerHTML = info.plmn;
+						if(info.plmn_desc) 
+							if (e = document.getElementById('qmi2_plmn'))
+								e.innerHTML = info.plmn_desc;
+						if(info.signal) 
+							if (e = document.getElementById('qmi2_signal'))
+								e.innerHTML = info.signal + "%";
+						if(info.imei) 
+							if (e = document.getElementById('qmi2_imei'))
+								e.innerHTML = info.imei;
+						if(info.iccid) 
+							if (e = document.getElementById('qmi2_cellid'))
+								e.innerHTML = info.iccid;
+						if(info.simstate) 
+							if (e = document.getElementById('qmi2_simstatus'))
+								e.innerHTML = info.simstate;
+						if(info.failed_reason)
+							if (e = document.getElementById('qmi2_failed_reason'))
+								e.innerHTML = info.failed_reason;
+						if(info.manufacturer) 
+							if (e = document.getElementById('qmi2_manufacturer'))
+								e.innerHTML = info.manufacturer;
+					}
+				}
+			} else {
+				info = data;
+				var e;
+						if(info.status) 
+							if (e = document.getElementById('qmi_status'))
+								e.innerHTML = info.status;
+						if(info.model) 
+							if (e = document.getElementById('qmi_model'))
+								e.innerHTML = info.model;
+						if(info.roaming) 
+							if (e = document.getElementById('qmi_roam'))
+								e.innerHTML = info.roaming;
+						if(info.plmn) 
+							if (e = document.getElementById('qmi_mcc'))
+								e.innerHTML = info.plmn;
+						if(info.plmn_desc) 
+							if (e = document.getElementById('qmi_plmn'))
+								e.innerHTML = info.plmn_desc;
+						if(info.signal) 
+							if (e = document.getElementById('qmi_signal'))
+								e.innerHTML = info.signal + "%";
+						if(info.imei) 
+							if (e = document.getElementById('qmi_imei'))
+								e.innerHTML = info.imei;
+						if(info.iccid) 
+							if (e = document.getElementById('qmi_cellid'))
+								e.innerHTML = info.iccid;
+						if(info.simstate) 
+							if (e = document.getElementById('qmi_simstatus'))
+								e.innerHTML = info.simstate;
+						if(info.failed_reason)
+							if (e = document.getElementById('qmi_failed_reason'))
+								e.innerHTML = info.failed_reason;
+						if(info.manufacturer) 
+							if (e = document.getElementById('qmi_manufacturer'))
+								e.innerHTML = info.manufacturer;
+
+			}
 		}
 	}
 
@@ -686,7 +791,22 @@
       <div class="tr"><div class="td left" width="33%"><%:Global Cell ID%></div><div class="td left" id="qmi_cellid">-</div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Operator ID%></div><div class="td left" id="qmi_mcc">-</div></div>
   		<div class="tr"><div class="td left" width="33%"><%:Signal Strength%></div><div class="td left" id="qmi_signal">-</div></div>
-  	</div>
+	</div>
+	<% if modem_num >= 2 then %>
+	<div class="table" width="100%">
+	  <div class="tr"><div class="td left" width="33%"><%:Mobile Manufacturer%></div><div class="td left" id="qmi2_manufacturer">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Mobile Modem%></div><div class="td left" id="qmi2_model">-</div></div>	  
+	  <div class="tr"><div class="td left" width="33%"><%:SIM Status%></div><div class="td left" id="qmi2_simstatus">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Failed Reason%></div><div class="td left" id="qmi2_failed_reason">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:IMEI Number%></div><div class="td left" id="qmi2_imei">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Mobile Operator%></div><div class="td left" id="qmi2_plmn">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Mobile Connection%></div><div style="text-transform: capitalize;" class="td left" id="qmi2_status">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Roaming%></div><div style="text-transform: capitalize;" class="td left" id="qmi2_roam">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Global Cell ID%></div><div class="td left" id="qmi2_cellid">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Operator ID%></div><div class="td left" id="qmi2_mcc">-</div></div>
+	  <div class="tr"><div class="td left" width="33%"><%:Signal Strength%></div><div class="td left" id="qmi2_signal">-</div></div>
+	</div>
+	<% end %>
   </div>
 
 </div>
