@@ -11,6 +11,12 @@ config interface 'lan'
 	option netmask '255.255.255.0'
 	option ifname 'eth1'
 
+config interface 'guest'
+	option proto 'static'
+	option ipaddr '192.168.100.1'
+	option netmask '255.255.255.0'
+	option ifname 'wlan0-1'
+
 config interface 'wan'
 	option proto 'dhcp'
 	option ifname 'eth0'
