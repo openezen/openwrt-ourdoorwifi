@@ -131,6 +131,13 @@ detect_mac80211() {
 			set wireless.default_radio${devidx}.mode=ap
 			set wireless.default_radio${devidx}.ssid=${ssid_prefix}-WiFi-${macaddr}
 			set wireless.default_radio${devidx}.encryption=none
+
+			set wireless.client_radio${devidx}=wifi-iface
+			set wireless.client_radio${devidx}.device=radio${devidx}
+			set wireless.client_radio${devidx}.network=guest
+			set wireless.client_radio${devidx}.mode=ap
+			set wireless.client_radio${devidx}.ssid=Guest-WiFi-${macaddr}
+			set wireless.client_radio${devidx}.encryption=none
 EOF
 		uci -q commit wireless
 
