@@ -1,97 +1,3 @@
-# this file will be included in 
-#     /lib/wifi/mt{chipname}.sh
-create_gbk_config() {
-	local device iface section ifname disabled gbk_enable
-	local encryption key key1 cipher hidden noforward maxassoc ssid  kickthres assocthres
-	
-    case "$device" in
-    	mt7620 | mt7602e | mt7603e | mt7628 | mt7688 | mt7615e2 )
-			uci -q delete wireless.main_gbk
-			uci -q delete wireless.guest_gbk
-			;;
-        mt7610e | mt7612e | mt7615e5 )
-			uci -q delete wireless.main_5g_gbk
-			uci -q delete wireless.guest_5g_gbk
-			;;
-	esac
-			
-
-    vifs=`uci show wireless | grep "=wifi-iface" | grep -v gbk	| sed -n "s/=wifi-iface//gp"`
-	for vif in $vifs; do
-		device=`uci -q get ${vif}.device`
-		[ "$device" == $1 ] || continue
-		
-		iface=$(echo $vif | awk -F. '{print $2}')
-		
-		config_get disabled $iface disabled
-		[ "$disabled" == 1 ] && continue
-
-		config_get gbk_enable $iface gbk_enable
-		[ "$gbk_enable" == "1" ] || continue
-
-		section=${iface}_gbk
-        case "$device" in
-            mt7620 | mt7602e | mt7603e | mt7628 | mt7688 | mt7615e2 )
-				if [ "$iface" == "main" ]; then
-					ifname=ra2
-					uci -q delete wireless.main_gbk
-				else
-					ifname=ra3
-					uci -q delete wireless.guest_gbk
-				fi
-			;;
-            mt7610e | mt7612e )
-				if [ "$iface" == "main_5g" ]; then
-					ifname=rai2
-					uci -q delete wireless.main_5g_gbk
-				else
-					ifname=rai3
-					uci -q delete wireless.guest_5g_gbk
-				fi
-			;;
-            mt7615e5 )
-				if [ "$iface" == "main_5g" ]; then
-					ifname=rai2
-					uci -q delete wireless.main_5g_gbk
-				else
-					ifname=rai3
-					uci -q delete wireless.guest_5g_gbk
-				fi
-			;;
-		esac
-	echo "create_gbk_config $iface $device $section $ifname"	
-#	config_get encryption $iface encryption
-#	config_get key $iface key
-#	config_get key1 $iface key1
-#	config_get cipher $iface cipher
-#	config_get hidden $iface hidden
-	config_get noforward $iface noforward
-	config_get maxassoc $iface maxassoc
-	config_get ssid $iface ssid
-    config_get kickthres $iface kickthres
-    config_get assocthres $iface assocthres
-	echo $ssid > /var/wifissid
-
-	tmp=$(uci add wireless wifi-iface)
-	uci rename wireless.$tmp=$section
-
-	uci set wireless.$section.device=$device
-	uci set wireless.$section.network=$3
-	uci set wireless.$section.ifname=$ifname
-#	uci set wireless.$section.mode="ap"
-#	uci set wireless.$section.encryption=$encryption
-#	uci set wireless.$section.key=$key
-#	uci set wireless.$section.key1=$key1
-#	uci set wireless.$section.cipher=$cipher
-#	uci set wireless.$section.hidden=$hidden
-	uci set wireless.$section.noforward=$noforward
-	uci set wireless.$section.maxassoc=$maxassoc
-	uci set wireless.$section.kickthres=$kickthres
-	uci set wireless.$section.assocthres=$assocthres
-	uci set wireless.$section.ssid=$(iconv -f UTF-8 -t GBK /var/wifissid)
-	done
-}
-
 
 repair_wireless_uci() {
     echo "repair_wireless_uci" >>/tmp/wifi.log
@@ -255,12 +161,12 @@ reinit_wifi() {
 	if [ "$module" == "mt7615e5" -o "$module" == "mt7615e2" ]; then
 		module="mt7615"
 	fi
-	if [ "$device" == "mt7615e2" ]; then
-		for ifname in `ls -1 /sys/class/net/ | grep rai[0-9]`               
+	if [ "$device" == "mt7615e5" ]; then
+		for ifname in `ls -1 /sys/class/net/ | grep ra[0-9]`               
 		do                                                                          
 			ifconfig $ifname down                                                   
 		done  
-		ifconfig apclii0 down
+		ifconfig apcli0 down
 	else
 		for ifname in `ls -1 /sys/class/net/ | grep ${ifprefix}[0-9]`               
 		do                                                                          
@@ -404,7 +310,6 @@ scan_ralink_wifi() {
     local module="$2"
     echo "scan_ralink_wifi($1,$2,$3,$4)" >>/tmp/wifi.log
     repair_wireless_uci
-	create_gbk_config $1 $2
 	prepare_ralink_wifi $1 $2
     sync_uci_with_dat $device /tmp/$device.dat
 }
@@ -470,7 +375,7 @@ update_qos() {
 	config_get qos_enable $cfg qos_enable 0
 	config_get uplimit $cfg uplimit 0
 	config_get downlimit $cfg downlimit 0
-	if [ "${cfg#gbk}" == ${cfg} -a "$qos_enable" == "1" ]; then     
+	if [ "$qos_enable" == "1" ]; then     
 		enable_wifi_qos $ifname $downlimit $uplimit             
 	fi        
 }
@@ -484,12 +389,55 @@ enable_ralink_wifi() {
     echo "enable_ralink_wifi($1,$2,$3,$4)" >>/tmp/wifi.log
     local device="$1"
 	local disabled cliautoch clienable
+
+	reinit_wifi $device $2
+
+	if [ "$device" == "mt7615e5" ]; then
+		ifconfig ra0 up
+		config_get vifs "mt7615e2" vifs
+		for vif in $vifs; do
+			config_get ifname $vif ifname
+			config_get disabled $vif disabled
+			config_get radio $device radio
+			config_get maxassoc $vif maxassoc
+			config_get kickthres $vif kickthres
+			config_get assocthres $vif assocthres
+			config_get noforward $vif noforward 0
+			config_get qos_enable $vif qos_enable 0
+			config_get uplimit $vif uplimit 0
+			config_get downlimit $vif downlimit 0
+			ifconfig $ifname up
+			echo "ifconfig $ifname up" >>/dev/null
+		
+		#Radio On/Off only support iwpriv command but dat file
+			[ "$radio" == "0" ] && iwpriv $ifname set RadioOn=0
+			[ -n "$maxassoc" ] && iwpriv $ifname set MaxStaNum=$maxassoc
+			[ -n "$kickthres" ] && iwpriv $ifname set KickStaRssiLow=$kickthres
+			[ -n "$assocthres" ] && iwpriv $ifname set AssocReqRssiThres=$assocthres
+			[ -n "$noforward" ] && iwpriv $ifname set NoForwarding=$noforward
+			
+			
+			if [ "$qos_enable" == "1" ]; then     
+				enable_wifi_qos $ifname $downlimit $uplimit             
+			fi        
+			local net_cfg bridge
+			net_cfg="$(find_net_config "$vif")"
+			[ -z "$net_cfg" ] && net_cfg="lan"
+			
+			bridge="$(bridge_interface "$net_cfg")"
+			config_set "$vif" bridge "$bridge"
+			brctl addif $bridge $ifname
+			start_net "$ifname" "$net_cfg"
+				
+			chk8021x $device
+			set_wifi_up "$vif" "$ifname"
+		done
+	fi
+
     config_get vifs "$device" vifs
     # bring up vifs
-    reinit_wifi $device $2
-	if [ "$device" == "mt7615e5" -o "$device" == "mt7615e2" ]; then
-		ifconfig ra0 up
-	fi
+    	
+
 	for vif in $vifs; do
         config_get ifname $vif ifname
         config_get disabled $vif disabled
@@ -515,14 +463,9 @@ enable_ralink_wifi() {
         [ -n "$maxassoc" ] && iwpriv $ifname set MaxStaNum=$maxassoc
         [ -n "$kickthres" ] && iwpriv $ifname set KickStaRssiLow=$kickthres
         [ -n "$assocthres" ] && iwpriv $ifname set AssocReqRssiThres=$assocthres
-        [ -n "$noforward" ] && iwpriv $ifname set NoForwarding=$noforward
+        [ -n "$noforward" ] && iwpriv $ifname set NoForwarding=$noforward		
 		
-		if [ "$vif" == "guest" -o "$vif" == "guest_5g" ]; then
-			config_get gisolate $vif gisolate
-			ebtables -D FORWARD -i $ifname -j DROP 2>&-
-			[ "$gisolate" != "0" ] && ebtables -I FORWARD -i $ifname -j DROP
-		fi
-		if [ "${vif#gbk}" == ${vif} -a "$qos_enable" == "1" ]; then     
+		if [ "$qos_enable" == "1" ]; then     
 			enable_wifi_qos $ifname $downlimit $uplimit             
 		fi        
         local net_cfg bridge
@@ -537,11 +480,21 @@ enable_ralink_wifi() {
 		chk8021x $device
         set_wifi_up "$vif" "$ifname"
     done
+
 	config_get disabled main disabled
-	[ "$device" == "mt7615e5" -o "$device" == "mt7615e2" ] && [ "$disabled" == "1" ] && {
+	[ "$device" == "mt7615e5" ] && [ "$disabled" == "1" ] && {
 		ifconfig ra0 down
 	}
-	
+
+
+	if [ "$device" == "mt7615e5" ]; then
+		config_get cliautoch "mt7615e2" cliautoch
+		config_get clienable "mt7615e2" clienable
+		if [ "y$cliautoch" == "y3" -a "y$clienable" == "y1" ]; then			
+			iwpriv apcli0 set ApCliAutoConnect=3			
+		fi
+	fi
+
 	config_get cliautoch $device cliautoch
 	config_get clienable $device clienable
 	config_get band $device band

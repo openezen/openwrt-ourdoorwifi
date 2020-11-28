@@ -1,0 +1,509 @@
+<%-
+	local sys = require "luci.sys"
+    require "luci.util"
+    local uci = luci.model.uci.cursor()
+	local uci_state = uci.cursor(nil, "/var/state")
+
+	local T = translate
+	
+	tabcount=0
+	tabname = {};
+	tabmenu = {};
+	
+	tabcount = tabcount+1
+	tabname[tabcount] = translate("Wi-Fi relay")
+	tabmenu[tabcount] = luci.dispatcher.build_url("admin", "wifi", "client", "client")
+
+
+	tabcount = tabcount+1
+	tabname[tabcount] = translate("5G Wi-Fi relay")
+	tabmenu[tabcount] = luci.dispatcher.build_url("admin", "wifi", "client", "client_5g")
+	
+	
+	local tabthis, section_name, ipaddr
+
+	if client_type == 0 then
+		ipaddr = uci_state:get("network", "wwan_2g", "ipaddr")
+		tabthis = 1
+		section_name = luci.sys.get_wifi_24g_device()
+	elseif client_type == 1 then
+		ipaddr = uci_state:get("network", "wwan_5g", "ipaddr")
+		tabthis = 2
+		section_name = luci.sys.get_wifi_5g_device()
+	end
+	
+	local client_enable   = uci:get("wireless", section_name, "clienable") or "0"
+	local client_ssid     = uci:get("wireless", section_name, "clissid") or ""
+	local client_bssid    = uci:get("wireless", section_name, "clibssid") or ""
+	local client_authmode = uci:get("wireless", section_name, "cliauthmode") or ""
+	local client_enc      = uci:get("wireless", section_name, "clienc") or ""
+	local client_key1	  = uci:get("wireless", section_name, "clikey1") or ""
+	local client_wpapsk	  = uci:get("wireless", section_name, "cliwpapsk") or ""
+	local client_channel  = uci:get("wireless", section_name, "channel") or ""
+	local client_autoch  = uci:get("wireless", section_name, "cliautoch") or "3"
+	local client_security = client_authmode
+	if client_enc ~= "" then
+		client_security = client_security .. " / " .. client_enc
+	end
+	
+	local ajax_url_scan  = luci.dispatcher.build_url("admin", "wifi", "client", "client_scan")
+	local ajax_url_apply = luci.dispatcher.build_url("admin", "wifi", "client", "client_apply")
+-%>
+<%+header%>
+
+<style>
+	.cbi-input-apply.disabled {
+		background:#d4d7dc;
+		cursor: default;
+	}
+	input[type=button] {
+		cursor: pointer;
+	}
+</style>
+<script type="text/javascript" src="<%=resource%>/jquery.min.js"></script>
+<script>
+//<![CDATA[
+$(document).ready(function(){
+	function doCommit(data){
+		data.sectionname = "<%=section_name%>";
+		data.type = "<%=client_type%>";
+		$.ajax({
+			url: "<%=ajax_url_apply%>",
+			type: "post",
+			timeout: 90000,
+			data: data,
+			dataType: "json",
+			success: function(response){
+				if (response.error == "ssid nil"){
+					alert("<%:SSID is empty%>");
+				}else if (response.error == "section name nil"){
+					alert("Internal error");
+				} else if (response.error == "success"){
+					alert("<%:Wi-Fi relay successed%>");
+				}
+				$("#Tip").hide();
+				window.location.reload();
+			},
+			error: function(error){
+				if (error.status == 0) {
+					alert("<%:In the wireless environment, please refresh the page after reconnect%>");
+				} else {
+					alert("<%:Operation is denied!%>");
+				}
+				$("#Tip").hide();
+				window.location.reload();
+			}
+		});
+		
+		$("#Tip").show();
+	}
+	
+	function parse_security(security){
+		var ret = {};
+		ret.enc = "";
+		if (security == "NONE"){
+			ret.authmode = "OPEN";
+			ret.display = "<%:No Encrypt%>";
+		}else{
+			if (security == "WEP"){
+				ret.authmode = "SHARED";
+				ret.display = "WEP";
+			}else{
+				var tmp = security.split("/");
+				if (tmp[0] == "WPAPSKWPA2PSK"){
+					tmp[0] = "WPA2PSK";
+				}
+				ret.authmode = tmp[0];
+				ret.enc = tmp[1];
+				ret.display = tmp[0];
+			}
+		}
+		return ret;
+	}
+
+	$("#wifi_client_scan").click(function(){
+		if ($("#wifi_client_enable").val() == "0"){
+			return false;
+		}
+		var data = {};
+		data.type = "<%=client_type%>";
+
+		$.ajax({
+			url: "<%=ajax_url_scan%>",
+			type: "post",
+			timeout: 60000,
+			data: data,
+			dataType: 'json',
+			success: function(response){
+				$("#wifi_list tbody").empty();
+				if (response.error){
+					alert(response.error);
+				}else if (response.length > 0) {
+					for (var i=0;i<response.length;i++){
+						var odd_even = 'odd';
+						if ((1 + (i % 2)) == 2){
+							odd_even = 'even';
+						}
+						var sec = parse_security($.trim(response[i].security));
+						var wifi_list_html = '<tr class="cbi-section-table-row cbi-rowstyle-'+ (1 + (i % 2)) + ' ' + odd_even +'"' + '>' +
+											 '<td class="cbi-value-field" id="cbi-table-' + (i+1) + '-ssid">'+response[i].ssid+'</td>' +
+											 '<td class="cbi-value-field" id="cbi-table-' + (i+1) + '-bssid">'+response[i].bssid+'</td>' +
+											 '<td class="cbi-value-field" id="cbi-table-' + (i+1) + '-security" authmode="'+sec.authmode+'" enc="'+sec.enc+'">'+sec.display+'</td>' +
+											 '<td class="cbi-value-field" id="cbi-table-' + (i+1) + '-ch">'+response[i].ch+'</td>' +
+											 '<td class="cbi-value-field" id="cbi-table-' + (i+1) + '-mode">'+response[i].mode+'</td>' +
+											 '<td class="cbi-value-field" id="cbi-table-' + (i+1) + '-siganl">'+response[i].siganl+'</td>' +
+											 '<td class="cbi-value-field">' +
+											 '<input class="cbi-button cbi-input-apply" type="button" value="<%:JOIN%>" index="' + (i+1) + '" name="join_to_wifi" />' +
+											 '</td></tr>'
+						$("#wifi_list tbody").append(wifi_list_html);
+					}
+					$("input[name='join_to_wifi']").click(function(){
+						var index = $(this).attr("index");
+						var ssid = $.trim($("#cbi-table-"+index+"-ssid").text());
+						var bssid = $.trim($("#cbi-table-"+index+"-bssid").text());
+						var authmode = $.trim($("#cbi-table-"+index+"-security").attr("authmode"));
+						if (authmode == "WPA1PSKWPA2PSK"){
+							authmode = "WPA2PSK";
+						}
+						var enc = $.trim($("#cbi-table-"+index+"-security").attr("enc"));
+						var ch = $.trim($("#cbi-table-"+index+"-ch").text());
+						$("#wifi_client_key").val("");
+						$("#wifi_client_ipaddr").hide();
+						
+						window.scrollTo( 0, 0 );
+						$("#wifi_client_ssid").val(ssid);
+						$("#wifi_client_bssid").val(bssid);
+						$("#wifi_client_authmode").val(authmode).change();
+						$("#wifi_client_enc").val(enc);
+						$("#wifi_client_ch").val(ch);
+						$("#wifi_client_key").focus()
+					});
+					tableSorterForAll("#cbi-wifilist", function(){});
+				}else {
+					$("#wifi_list tbody").html('<tr class="cbi-section-table-row"><td colspan="7" align="center"><em><%:No Wi-Fi network available%></em></td></tr>');
+				}
+			},
+			error: function(){
+				$("#wifi_list tbody").html('<tr class="cbi-section-table-row"><td colspan="7" align="center"><em><%:Operation is denied!%></em></td></tr>');
+			}
+		});
+		
+		var loading_html = '<tr class="cbi-section-table-row"><td colspan="7" align="center"><em><%:Scanning...%></em></td></tr>' +
+						   '<tr class="cbi-section-table-row"><td colspan="7" align="center"><img src="<%=resource%>/icons/loading.gif"/></td></tr>';
+		$("#wifi_list tbody").html(loading_html);
+	});
+
+	$("#wifi_client_enable").change( function() {
+		if ($(this).val() == "1"){
+			$("#depend_toclient_enable").show();
+			$("#wifi_client_ipaddr").show();
+			$("#wifi_client_status").show();
+			$("#wifi_client_scan").removeClass("disabled");
+			$("#wifi_list tbody").html('<tr class="cbi-section-table-row"><td colspan="7" align="center"><em><%:Click scan button to find nearby Wi-Fi networks%></em></td></tr>');
+		}else{
+			$("#depend_toclient_enable").hide();
+			$("#wifi_client_scan").addClass("disabled");
+			$("#wifi_list tbody").html('<tr class="cbi-section-table-row"><td colspan="7" align="center"><em><%:Enable Wi-Fi relay%></em></td></tr>');
+			$("#wifi_client_key").removeData("predata");
+			$("#wifi_client_ipaddr").hide();
+			$("#wifi_client_status").hide();
+		}
+	});
+	
+	$("#wifi_client_authmode").change(function(){
+		var authmode = $(this).val()
+
+		if (authmode == "OPEN"){
+			$("#wifi_client_key_wrap").hide();
+		}else{
+			$("#wifi_client_key_wrap").show();
+		}
+	
+		if (authmode == "WPAPSK" || authmode == "WPA2PSK"){
+			$("#wifi_client_enc_wrap").show();
+		}else{
+			$("#wifi_client_enc_wrap").hide();
+		}
+	});
+	
+	$("#wifi_client_commit").click(function(){
+		var data = {};
+		data.clienable = $("#wifi_client_enable").val();
+		if (data.clienable == "1"){
+			if (!checkForm()){
+				return false;
+			}
+			data.clissid = $.trim($("#wifi_client_ssid").val());
+			data.clibssid = $.trim($("#wifi_client_bssid").val());
+			data.cliauthmode = $("#wifi_client_authmode").val();
+			if ($("#wifi_client_autoch").is(':checked')){
+				data.cliautoch =  "3";
+			}else{
+				data.cliautoch =  "0";
+			}
+			if (data.cliauthmode == "OPEN" || data.cliauthmode == "SHARED"){
+				data.clienc = "NONE";
+			}else{
+				data.clienc = $("#wifi_client_enc").val();
+			}
+			data.clich = $("#wifi_client_ch").val();
+			
+			if ($("#wifi_client_authmode").val() == "SHARED"){
+				data.clikey1 = $.trim($("#wifi_client_key").val());
+			}else{
+				data.cliwpapsk = $.trim($("#wifi_client_key").val());
+			}
+		}
+		doCommit(data);
+	});
+	
+	var checkForm = function(){
+		var valid = true;
+		$("#wifi_client_ssid_wrap").removeClass("cbi-value-error")
+		$("#wifi_client_bssid_wrap").removeClass("cbi-value-error")
+		$("#wifi_client_key_wrap").removeClass("cbi-value-error")
+		if ($("#wifi_client_ssid").val() == ""){
+			$("#wifi_client_ssid_wrap").addClass("cbi-value-error")
+			valid = false;
+		}
+		if ($("#wifi_client_bssid").val() == ""){
+			$("#wifi_client_bssid_wrap").addClass("cbi-value-error")
+			valid = false;
+		}
+		if ($("#wifi_client_authmode").val() != "OPEN"){
+			if ($("#wifi_client_key").val() == ""){
+				$("#wifi_client_key_wrap").addClass("cbi-value-error")
+				valid = false;
+			}
+		}
+		return valid;
+	}
+	
+	<% if client_enable == "1" then %>
+		$("#wifi_client_ssid").val("<%=client_ssid%>");
+		$("#wifi_client_bssid").val("<%=client_bssid%>");
+		$("#wifi_client_authmode").val("<%=client_authmode%>").change();
+		if ("<%=client_authmode%>" == "SHARED") {
+			$("#wifi_client_key").val("<%=client_key1%>");
+		} else {
+			$("#wifi_client_key").val("<%=client_wpapsk%>");
+		}
+		$("#wifi_client_enc").val("<%=client_enc%>");
+		$("#wifi_client_ch").val("<%=client_channel%>");
+		$("#wifi_client_autoch").val("<%=client_autoch%>");
+		if ($("#wifi_client_autoch").val() != "3") {
+			$("#wifi_client_autoch").removeAttr("checked");
+		}
+	<% end %>	
+});
+//]]>
+</script>
+
+<div class="cbi-map" id="cbi-wifilist">
+	<fieldset class="xtabstyle">
+		<ul class="tabs">
+		<% for i=1, #tabmenu do %>
+			<% if tabthis == i then %>
+				<li id="tab1.wifi.client.xtab.<%=tabname[i]%>" class="tabmenu-item" name="<%=REQUEST_URI%>"><a href="<%=tabmenu[i]%>"><span><%=tabname[i]%></span></a></li>
+			<%else%>
+				<li id="tab3.wifi.client.xtab.<%=tabname[i]%>" class="tabmenu-item" name="<%=REQUEST_URI%>"><a href="<%=tabmenu[i]%>"><span><%=tabname[i]%></span></a></li>
+			<%end%>
+		<%end%>
+		</ul>
+	</fieldset>
+	<fieldset class="cbi-section">
+		<div class="cbi-section-node cbi-value-last">
+			<% if ipaddr then %>
+			<div id="wifi_client_status" style="border-left:5px solid #69b6f3;">
+				<div style="color: #3c763d;background-color: #dff0d8;border-color: #d6e9c6;padding: 15px;margin: 0px 0px 0px 5px;border: 1px solid transparent;border-radius: 4px;">
+					<%:Wi-Fi relay successed%>
+				</div>
+			</div>
+			<% end %>
+			<div class="cbi-value cbi-rowstyle-1">
+				<label class="cbi-value-title"><%:Wi-Fi relay%></label>
+				<div class="cbi-value-field">
+					<select id="wifi_client_enable">
+						<option value="0" <%=(client_enable == "0" and "selected='selected'" or "")%> ><%:Disable%></option>
+						<option value="1" <%=(client_enable == "1" and "selected='selected'" or "")%> ><%:Enable%></option>
+					</select>
+				</div>
+			</div>
+			<div id="depend_toclient_enable" style='<%=(client_enable == "0" and "display:none" or "")%>'>
+			<div id="wifi_client_ssid_wrap" class="cbi-value cbi-rowstyle-2">
+				<label class="cbi-value-title">SSID</label>
+				<div class="cbi-value-field">
+					<input id="wifi_client_ssid" class="cbi-input-text" type="text" />
+				</div>
+			</div>
+			
+			<div id="wifi_client_bssid_wrap" class="cbi-value cbi-rowstyle-1">
+				<label class="cbi-value-title">BSSID</label>
+				<div class="cbi-value-field">
+					<input id="wifi_client_bssid" class="cbi-input-text" type="text" />
+				</div>
+			</div>
+			
+			<div id="wifi_client_ch_wrap" class="cbi-value cbi-rowstyle-2">
+				<label class="cbi-value-title"><%:Channel%></label>
+				<div class="cbi-value-field">
+					<select id="wifi_client_ch">
+						<%
+							if client_type == 0 then
+								local j = 2.412
+								for i = 1, 13 do
+						%>
+									<option value="<%=i%>"><%=string.format("%d (%.3f GHz)", i, j )%></option>
+						<%
+									j = j + 0.005
+								end
+							else
+								local j = 5.180
+								for i = 36, 64, 4 do
+						%>
+									<option value="<%=i%>"><%=string.format("%d (%.3f GHz)", i, j )%></option>
+						<%
+									j = j + 0.02
+								end
+								
+								local j = 5.745
+								for i = 149, 165, 4 do
+						%>
+									<option value="<%=i%>"><%=string.format("%d (%.3f GHz)", i, j )%></option>
+						<%
+									j = j + 0.02
+								end
+							end
+						%>
+					</select>
+				</div>
+			</div>	
+
+			<div id="wifi_client_autoch_wrap" class="cbi-value cbi-rowstyle-1">
+				<label class="cbi-value-title"><%:Auto adjust channel%></label>
+				<div class="cbi-value-field">
+					<input id="wifi_client_autoch" class="cbi-input-checkbox" type="checkbox" value="3" checked="checked" />
+				</div>
+			</div>
+			
+			<div id="wifi_client_authmode_wrap" class="cbi-value cbi-rowstyle-2">
+				<label class="cbi-value-title"><%:Encrypt Type%></label>
+				<div class="cbi-value-field">
+					<select id="wifi_client_authmode">
+						<option value="OPEN"><%:No Encrypt%></option>
+						<option value="SHARED"><%:WEP%></option>
+						<option value="WPAPSK"><%:WPA-PSK%></option>
+						<option value="WPA2PSK"><%:WPA2-PSK%></option>
+					</select>
+				</div>
+			</div>
+			
+			<div id="wifi_client_enc_wrap" class="cbi-value cbi-rowstyle-1" style="display:none">
+				<label class="cbi-value-title"><%:Cipher%></label>
+				<div class="cbi-value-field">
+					<select id="wifi_client_enc">
+						<option value="AES">AES</option>
+						<option value="TKIP">TKIP</option>
+						<option value="TKIPAES">TKIP/AES</option>
+					</select>
+				</div>
+			</div>
+			
+			<div id="wifi_client_key_wrap" class="cbi-value cbi-rowstyle-2" style="display:none">
+				<label class="cbi-value-title"><%:Key%></label>
+				<div class="cbi-value-field">
+					<input id="wifi_client_key" class="cbi-input-text" type="text" />
+					<img src="<%=resource%>/cbi/reload.gif" style="vertical-align:middle" title="<%:Reveal/hide password%>" onclick="var e = document.getElementById('wifi_client_key'); e.type = (e.type=='password') ? 'text' : 'password';" />
+				</div>
+			</div>
+			
+			</div>
+			<% if ipaddr then %>
+			<div class="cbi-value" id="wifi_client_ipaddr">
+				<label class="cbi-value-title"><%:IP Address%></label>
+				<div class="cbi-value-field" style="color:#5baf0b;"><%=ipaddr%></div>
+			</div>
+			<% end %>
+			<div id="wifi_client_commit_wrap" class="cbi-value">
+				<label class="cbi-value-title"></label>
+				<div class="cbi-value-field">
+					<input id="wifi_client_commit" class="cbi-button cbi-input-apply" type="button" value="<%:Commit%>" />
+				</div>
+			</div>
+		</div>
+	</fieldset>
+	<fieldset class="cbi-section">
+		<div class="legend"><%:Wi-Fi List%><input id="wifi_client_scan" style="margin-left:175px;" class="cbi-button cbi-input-apply <%=(client_enable == "0" and "disabled" or "")%>" type="button" value="<%:Start To Scan%>" /></div>
+		<table class="tablesorter tablesorter-blue" id="wifi_list" width="100%">
+			<colgroup>
+				<col style="width:35%;"></col>
+				<col style="width:15%;"></col>
+				<col style="width:16%;"></col>
+				<col style="width:8%;"></col>
+				<col style="width:8%;"></col>
+				<col style="width:8%;"></col>
+				<col style="width:10%;"></col>
+			</colgroup>
+			<thead>
+				<tr class="cbi-section-table-tiles tablesorter-headerRow cbi-rowstyle-2">
+					<th class="cbi-section-table-cell tablesorter-header" style="user-select: none; background-image: none;">
+						SSID
+					</th>
+					<th class="cbi-section-table-cell tablesorter-header" style="user-select: none; background-image: none;">
+						BSSID
+					</th>
+					<th class="cbi-section-table-cell tablesorter-header" style="user-select: none; background-image: none;">
+						<%:Encrypt Type%>
+					</th>
+					<th class="cbi-section-table-cell tablesorter-header" style="user-select: none; background-image: none;">
+						<%:Channel%>
+					</th>
+					<th class="cbi-section-table-cell tablesorter-header" style="user-select: none; background-image: none;">
+						<%:Wi-Fi Mode%>
+					</th>
+					<th class="cbi-section-table-cell tablesorter-header" style="user-select: none; background-image: none;">
+						<%:Signal%>(%)
+					</th>
+					<th class="cbi-section-table-cell tablesorter-header" style="user-select: none; background-image: none;">
+						<%:JOIN%>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% if client_enable == "0" then %>
+				<tr class="cbi-section-table-row"><td colspan="7" align="center"><em><%:Enable Wi-Fi relay%></em></td></tr>
+				<% else %>
+				<tr class="cbi-section-table-row"><td colspan="7" align="center"><em><%:Click scan button to find nearby Wi-Fi networks%></em></td></tr>
+				<% end %>
+			</tbody>
+		</table>
+		<!-- <div class="pager">
+			<img src="<%=resource%>/icons/first.png" class="first" alt="First" />
+			<img src="<%=resource%>/icons/Prev.png" class="prev" alt="Prev" />
+			<span class="pagedisplay"></span> 
+			<img src="<%=resource%>/icons/Next.png" class="next" alt="Next" />
+			<img src="<%=resource%>/icons/Last.png" class="last" alt="Last" />
+			<select class="pagesize" title="Select page size" width="10px">
+				<option value="20">20</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+			</select>
+			<select class="gotoPage" title="Select page number"></select>
+		</div> -->
+	</fieldset>
+	<div id="Tip" style="display:none">
+		<div class="blockUI blockOverlay" style="z-index: 1000; border: none; margin: 0px; padding: 0px; width: 100%; height: 100%; top: 0px; left: 0px; background-color: rgb(0, 0, 0); opacity: 0.6; cursor: wait; position: fixed;"></div>
+		<div class="blockUI blockMsg blockPage" style="z-index: 1012; position: fixed; padding: 0px; margin: -100px; width: 400px; top: 40%; left: 35%; text-align: center; color: rgb(255, 255, 255); border: none; background-color: rgb(0, 0, 0); cursor: wait; border-radius: 5px; height: auto; opacity: 1;">
+			<fieldset class="cbi-section" style="margin-top:0em;margin-bottom:0em;">
+				<div class="legend"><%:Applying changes%></div>
+				<div style="padding:10px">
+					<p style="font-size:18px;text-align:center;">
+						<img src="/luci-static/resources/icons/loading.gif" style="vertical-align:middle;" /> <%:Updating%> <%:Waiting for router...%><br />
+						<br />
+					</p>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+</div>
+<%+footer%>

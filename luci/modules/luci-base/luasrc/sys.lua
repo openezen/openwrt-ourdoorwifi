@@ -317,6 +317,49 @@ function net.host_hints(callback)
 	end
 end
 
+
+-- Internal functions
+
+function _parse_delimited_table(iter, delimiter, callback)
+	delimiter = delimiter or "%s+"
+
+	local data  = {}
+	local trim  = luci.util.trim
+	local split = luci.util.split
+
+	local keys = split(trim(iter()), delimiter, nil, true)
+	for i, j in pairs(keys) do
+		keys[i] = trim(keys[i])
+	end
+
+	for line in iter do
+		local row = {}
+		line = trim(line)
+		if #line > 0 then
+			for i, j in pairs(split(line, delimiter, nil, true)) do
+				if keys[i] then
+					row[keys[i]] = j
+				end
+			end
+		end
+
+		if callback then
+			callback(row)
+		else
+			data[#data+1] = row
+		end
+	end
+
+	return data
+end
+--- Returns the current arp-table entries as two-dimensional table.
+-- @return	Table of table containing the current arp entries.
+--			The following fields are defined for arp entry objects:
+--			{ "IP address", "HW address", "HW type", "Flags", "Mask", "Device" }
+function net.arptable(callback)
+	return _parse_delimited_table(io.lines("/proc/net/arp"), "%s%s+", callback)
+end
+
 function net.conntrack(callback)
 	local ok, nfct = pcall(io.lines, "/proc/net/nf_conntrack")
 	if not ok or not nfct then
@@ -479,6 +522,43 @@ function wifi.getiwinfo(ifname)
 
 	return { ifname = ifname }
 end
+
+
+wifi_24g_device = nil
+function get_wifi_24g_device()
+	if wifi_24g_device == nil then
+		local uci = uci.cursor()
+		uci:foreach("wireless", "wifi-device", 
+			function(section)
+				local band = section.band
+				if band == "2.4G" or band == "2.4g" then
+					wifi_24g_device = section[".name"]
+					return
+				end
+			end
+		)
+	end
+	return wifi_24g_device
+end
+
+
+wifi_5g_device = nil
+function get_wifi_5g_device()
+	if wifi_5g_device == nil then
+		local uci = uci.cursor()
+		uci:foreach("wireless", "wifi-device", 
+			function(section)
+				local band = section.band
+				if band == "5G" or band == "5g" then
+					wifi_5g_device = section[".name"]
+					return
+				end
+			end
+		)
+	end
+	return wifi_5g_device
+end
+
 
 function get_simcard_num()
 	local cur = uci.cursor()

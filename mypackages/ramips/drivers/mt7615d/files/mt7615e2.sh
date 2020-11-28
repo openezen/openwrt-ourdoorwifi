@@ -18,20 +18,20 @@ scan_mt7615e2() {
 
 
 disable_mt7615e2() {
+	return
 	disable_ralink_wifi mt7615e2
 }
 
 enable_mt7615e2() {
+	return
 	enable_ralink_wifi mt7615e2 mt7615e2
 }
 
 detect_mt7615e2() {
 #	detect_ralink_wifi mt7615 mt7615
-	local class vendor bindif ssid
-	ssid=mt7615-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
+	local ssid
 	cd /sys/module/
 	[ -d $module ] || return
-#	[ -e /etc/config/wireless ] && return
 	
 	[ -f /etc/Wireless/mt7615/mt7615e2.dat ] || {
 		mkdir -p /etc/Wireless/mt7615/ 2>/dev/null
@@ -39,15 +39,6 @@ detect_mt7615e2() {
 		ln -s /tmp/mt7615e2.dat /etc/Wireless/mt7615/mt7615e2.dat 2>/dev/null
 	}
 
-	vendor=$(cat /etc/product_info | grep "PRODUCT_VENDOR" | awk -F= '{print $2}') 
-
-	class=$(uci get product_params.class.product_class)
-
-	if [ "$class" == "ap" ]; then
-		bindif="wan"
-	else
-		bindif="lan"
-	fi
 
          cat <<EOF
 config wifi-device      mt7615e2
@@ -90,7 +81,7 @@ config wifi-device      mt7615e2
 config wifi-iface main
         option device   mt7615e2
         option ifname   ra0
-        option network  $bindif
+        option network  lan
         option mode     ap
         option ssid 'Outdoor-wifi'
 		option encryption none
@@ -100,7 +91,7 @@ config wifi-iface main
 config wifi-iface guest
         option device   mt7615e2
         option ifname   ra1
-        option network  $bindif
+        option network  lan
         option mode     ap
         option ssid 'Outdoor-wifi'
         option encryption none

@@ -53,3 +53,13 @@ config switch_vlan
 	option vlan '2'
 	option ports '4 6t'
 
+config interface 'wwan_2g'
+	option ifname 'apcli0'
+	option intftype 'wan'
+	option proto 'dhcp'
+
+config interface 'wwan_5g'
+	option ifname 'apclii0'
+	option intftype 'wan'
+	option proto 'dhcp'
+

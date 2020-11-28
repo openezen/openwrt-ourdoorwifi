@@ -18,7 +18,7 @@ local ut = require "luci.util"
 local nt = require "luci.sys".net
 local fs = require "nixio.fs"
 
-arg[1] = arg[1] or ""
+arg[1] = arg[1] or "mt7615e2.network1"
 
 m = Map("wireless", "",
 	translate("The <em>Device Configuration</em> section covers physical settings of the radio " ..

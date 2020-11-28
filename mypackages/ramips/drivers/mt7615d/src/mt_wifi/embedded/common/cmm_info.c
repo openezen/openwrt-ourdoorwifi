@@ -5038,113 +5038,193 @@ VOID RTMPIoctlGetMacTable(
 	IN PRTMP_ADAPTER pAd,
 	IN RTMP_IOCTL_INPUT_STRUCT *wrq)
 {
-	INT i;
-	/*	RT_802_11_MAC_TABLE MacTab;*/
-	RT_802_11_MAC_TABLE *pMacTab = NULL;
-	RT_802_11_MAC_ENTRY *pDst;
-	MAC_TABLE_ENTRY *pEntry;
-	STA_TR_ENTRY *tr_entry;
+	INT i;	
 	char *msg;
-	/* allocate memory */
-	os_alloc_mem(NULL, (UCHAR **)&pMacTab, sizeof(RT_802_11_MAC_TABLE));
-
-	if (pMacTab == NULL) {
-		MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("%s: Allocate memory fail!!!\n", __func__));
+	INT max_len = 19 + 4 + 4 + 4 + 4 + 7 + 7 + 7 + 10 + 1;	
+#if defined(MT7615)
+	UINT32 ps_stat[4] = {0};
+#endif
+	ULONG DataRate=0;
+	ULONG DataRate_r=0;
+	UCHAR	tmp_str[30];
+	INT		temp_str_len = sizeof(tmp_str);
+	struct _RTMP_CHIP_CAP *cap = hc_get_chip_cap(pAd->hdev_ctrl);
+	
+	os_alloc_mem(NULL, (UCHAR **)&msg, sizeof(CHAR)*(GET_MAX_UCAST_NUM(pAd)*max_len));
+	if (msg == NULL)
+	{
+		MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("%s():Alloc memory failed\n", __FUNCTION__));
 		return;
 	}
+	memset(msg, 0 , GET_MAX_UCAST_NUM(pAd) * max_len);
+#if defined(MT7615)
+	HW_IO_READ32(pAd, PLE_STATION_PAUSE0, &ps_stat[0]);
+	HW_IO_READ32(pAd, PLE_STATION_PAUSE1, &ps_stat[1]);
+	HW_IO_READ32(pAd, PLE_STATION_PAUSE2, &ps_stat[2]);
+	HW_IO_READ32(pAd, PLE_STATION_PAUSE3, &ps_stat[3]);
+#endif
+	
+	sprintf(msg+strlen(msg),"\n%-19s%-4s%-4s%-4s%-4s%-7s",
+			"MAC", "AID", "BSS", "PSM", "WMM", "MIMOPS");
+	sprintf(msg+strlen(msg),"%-7s%-7s%-10s\n", "RSSI0", "RSSI1", "Rate(T/R)");	
 
-	NdisZeroMemory(pMacTab, sizeof(RT_802_11_MAC_TABLE));
-	pMacTab->Num = 0;
-
-	for (i = 0; VALID_UCAST_ENTRY_WCID(pAd, i); i++) {
-		pEntry = &(pAd->MacTab.Content[i]);
-		tr_entry = &(pAd->MacTab.tr_entry[i]);
-		if (IS_ENTRY_CLIENT(pEntry) && (pEntry->Sst == SST_ASSOC))
-		{
-			pDst = &pMacTab->Entry[pMacTab->Num];
-			pDst->ApIdx = (UCHAR)pEntry->func_tb_idx;
-			COPY_MAC_ADDR(pDst->Addr, &pEntry->Addr);
-			pDst->Aid = (UCHAR)pEntry->Aid;
-			pDst->Psm = pEntry->PsMode;
-#ifdef DOT11_N_SUPPORT
-			pDst->MimoPs = pEntry->MmpsMode;
-#endif /* DOT11_N_SUPPORT */
-			/* Fill in RSSI per entry*/
-			pDst->AvgRssi0 = pEntry->RssiSample.AvgRssi[0];
-			pDst->AvgRssi1 = pEntry->RssiSample.AvgRssi[1];
-			pDst->AvgRssi2 = pEntry->RssiSample.AvgRssi[2];
-#ifdef CUSTOMER_DCC_FEATURE
-			pDst->AvgRssi3 = pEntry->RssiSample.AvgRssi[3];
-			/*FILL the AVG SNR */
-			pDst->AvgSnr = ((pEntry->RssiSample.AvgSnr[0] +
-							pEntry->RssiSample.AvgSnr[1] +
-							pEntry->RssiSample.AvgSnr[2] +
-							pEntry->RssiSample.AvgSnr[3]
-							) / pAd->Antenna.field.RxPath);
-			pDst->LastRxRate = pEntry->LastRxRate;
-#endif /* CUSTOMER_DCC_FEATURE */
-
-			/* the connected time per entry*/
-			pDst->ConnectedTime = pEntry->StaConnectTime;
-			pDst->TxRate.word = RTMPGetLastTxRate(pAd, pEntry);
-#ifndef CUSTOMER_DCC_FEATURE
-#ifdef RTMP_RBUS_SUPPORT
-
-			if (IS_RBUS_INF(pAd))
-				pDst->LastRxRate = pEntry->LastRxRate;
-
-#endif /* RTMP_RBUS_SUPPORT */
-#endif /* !CUSTOMER_DCC_FEATURE */
-
-			pMacTab->Num += 1;
-		}
-	}
-
-	wrq->u.data.length = sizeof(RT_802_11_MAC_TABLE);
-
-	if (copy_to_user(wrq->u.data.pointer, pMacTab, wrq->u.data.length))
-		MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s: copy_to_user() fail\n", __func__));
-
-	os_alloc_mem(NULL, (UCHAR **)&msg, sizeof(CHAR) * (GET_MAX_UCAST_NUM(pAd)*MAC_LINE_LEN));
-
-	if (msg == NULL) {
-		MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("%s():Alloc memory failed\n", __func__));
-		goto LabelOK;
-	}
-
-	memset(msg, 0, GET_MAX_UCAST_NUM(pAd)*MAC_LINE_LEN);
-	sprintf(msg, "%s", "\n");
-	sprintf(msg + strlen(msg), "%-14s%-4s%-4s%-4s%-4s%-6s%-6s%-10s%-10s%-10s\n",
-			"MAC", "AP",  "AID", "PSM", "AUTH", "CTxR", "LTxR", "LDT", "RxB", "TxB");
-
-	for (i = 0; VALID_UCAST_ENTRY_WCID(pAd, i); i++) {
+	for (i=0; VALID_UCAST_ENTRY_WCID(pAd, i); i++)
+	{
 		MAC_TABLE_ENTRY *pEntry = &pAd->MacTab.Content[i];
+
 		if (IS_ENTRY_CLIENT(pEntry) && (pEntry->Sst == SST_ASSOC))
 		{
-			if ((strlen(msg) + MAC_LINE_LEN) >= (GET_MAX_UCAST_NUM(pAd)*MAC_LINE_LEN))
-				break;
+			if((strlen(msg)+max_len ) >= (GET_MAX_UCAST_NUM(pAd)*max_len) )
+				break;			
 
-			sprintf(msg + strlen(msg), "%02x%02x%02x%02x%02x%02x  ", PRINT_MAC(pEntry->Addr));
-			sprintf(msg + strlen(msg), "%-4d", (int)pEntry->func_tb_idx);
-			sprintf(msg + strlen(msg), "%-4d", (int)pEntry->Aid);
-			sprintf(msg + strlen(msg), "%-4d", (int)pEntry->PsMode);
-			sprintf(msg + strlen(msg), "%-4d", (int)pEntry->AuthState);
-			sprintf(msg + strlen(msg), "%-6d", RateIdToMbps[pAd->MacTab.Content[i].CurrTxRate]);
-			sprintf(msg + strlen(msg), "%-6d", 0/*RateIdToMbps[pAd->MacTab.Content[i].HTPhyMode.word]*/); /* ToDo*/
-			sprintf(msg + strlen(msg), "%-10d", 0/*pAd->MacTab.Content[i].HSCounter.LastDataPacketTime*/); /* ToDo*/
-			sprintf(msg + strlen(msg), "%-10d", 0/*pAd->MacTab.Content[i].HSCounter.TotalRxByteCount*/); /* ToDo*/
-			sprintf(msg + strlen(msg), "%-10d\n", 0/*pAd->MacTab.Content[i].HSCounter.TotalTxByteCount*/); /* ToDo*/
+			sprintf(msg+strlen(msg),"%02X:%02X:%02X:%02X:%02X:%02X  ", PRINT_MAC(pEntry->Addr));
+					
+			sprintf(msg+strlen(msg),"%-4d", (int)pEntry->Aid);
+			sprintf(msg+strlen(msg),"%-4d", (int)pEntry->func_tb_idx);
+#if defined(MT7615)
+			if (((1 << (pEntry->wcid%32)) & ps_stat[pEntry->wcid/32]) != 0)
+				sprintf(msg+strlen(msg),"%-4d", (int)PWR_SAVE);
+			else
+				sprintf(msg+strlen(msg),"%-4d", (int)PWR_ACTIVE);
+#else
+			sprintf(msg+strlen(msg),"%-4d", (int)pEntry->PsMode);
+#endif
+			sprintf(msg+strlen(msg),"%-4d", (int)CLIENT_STATUS_TEST_FLAG(pEntry, fCLIENT_STATUS_WMM_CAPABLE));
+#ifdef DOT11_N_SUPPORT
+			sprintf(msg+strlen(msg),"%-7d", (int)pEntry->MmpsMode);
+#endif /* DOT11_N_SUPPORT */
+			sprintf(msg+strlen(msg),"%-7d%-7d", pEntry->RssiSample.AvgRssi[0], pEntry->RssiSample.AvgRssi[1]);
+#ifdef RACTRL_FW_OFFLOAD_SUPPORT
+
+			
+			if (cap->fgRateAdaptFWOffload == TRUE == TRUE && (pEntry->bAutoTxRateSwitch == TRUE))
+			{
+				UCHAR phy_mode, rate, bw, sgi, stbc;
+				UCHAR phy_mode_r, rate_r, bw_r, sgi_r, stbc_r;
+#ifdef DOT11_VHT_AC
+				UCHAR vht_nss;
+				UCHAR vht_nss_r;
+#endif
+
+				UINT32 RawData;
+				UINT32 RawData_r;
+				UINT32 lastTxRate = pEntry->LastTxRate;
+				UINT32 lastRxRate = pEntry->LastRxRate;
+
+				if (pEntry->bAutoTxRateSwitch == TRUE)
+				{
+
+					EXT_EVENT_TX_STATISTIC_RESULT_T rTxStatResult;
+					HTTRANSMIT_SETTING LastTxRate;
+					HTTRANSMIT_SETTING LastRxRate;
+					MtCmdGetTxStatistic(pAd, GET_TX_STAT_ENTRY_TX_RATE, 0/*Don't Care*/, pEntry->wcid, &rTxStatResult);
+					LastTxRate.field.MODE = rTxStatResult.rEntryTxRate.MODE;
+					LastTxRate.field.BW = rTxStatResult.rEntryTxRate.BW;
+					LastTxRate.field.ldpc = rTxStatResult.rEntryTxRate.ldpc ? 1:0;
+					LastTxRate.field.ShortGI = rTxStatResult.rEntryTxRate.ShortGI ? 1:0;
+					LastTxRate.field.STBC = rTxStatResult.rEntryTxRate.STBC;
+					if (LastTxRate.field.MODE == MODE_VHT)
+					{
+						LastTxRate.field.MCS = (((rTxStatResult.rEntryTxRate.VhtNss - 1) & 0x3) << 4) + rTxStatResult.rEntryTxRate.MCS;
+					}
+					else if (LastTxRate.field.MODE == MODE_OFDM)
+					{
+                    	LastTxRate.field.MCS = getLegacyOFDMMCSIndex(rTxStatResult.rEntryTxRate.MCS) & 0x0000003F;
+                    }
+					else
+					{
+						LastTxRate.field.MCS = rTxStatResult.rEntryTxRate.MCS;
+					}
+					lastTxRate = (UINT32)(LastTxRate.word);
+					LastRxRate.word = (USHORT)lastRxRate;
+					RawData = lastTxRate;
+					phy_mode = (RawData>>13) & 0x7;
+					rate = RawData & 0x3F;
+					bw = (RawData>>7) & 0x3;
+					sgi = (RawData>>9) & 0x1;
+					stbc = ((RawData>>10) & 0x1);
+//----
+					RawData_r = lastRxRate;
+					phy_mode_r = (RawData_r>>13) & 0x7;
+					rate_r = RawData_r & 0x3F;
+					bw_r = (RawData_r>>7) & 0x3;
+					sgi_r = (RawData_r>>9) & 0x1;
+					stbc_r = ((RawData_r>>10) & 0x1);
+#ifdef DOT11_VHT_AC
+					if ( phy_mode == MODE_VHT ) {
+						vht_nss = ((rate & (0x3 << 4)) >> 4) + 1;
+						rate = rate & 0xF;
+					} else
+#endif /* DOT11_VHT_AC */
+				
+#ifdef DOT11_VHT_AC
+					if ( phy_mode_r == MODE_VHT ) {
+						vht_nss_r = ((rate_r & (0x3 << 4)) >> 4) + 1;
+						rate_r = rate_r & 0xF;
+					} else
+#endif /* DOT11_VHT_AC */
+#if DOT11_N_SUPPORT
+					if ( phy_mode_r >= MODE_HTMIX ){
+					} else
+#endif
+					if ( phy_mode_r == MODE_OFDM ) {
+						if ( rate_r == TMI_TX_RATE_OFDM_6M )
+							LastRxRate.field.MCS = 0;
+						else if ( rate_r == TMI_TX_RATE_OFDM_9M )
+							LastRxRate.field.MCS = 1;
+						else if ( rate_r == TMI_TX_RATE_OFDM_12M )
+							LastRxRate.field.MCS = 2;
+						else if ( rate_r == TMI_TX_RATE_OFDM_18M )
+							LastRxRate.field.MCS = 3;
+						else if ( rate_r == TMI_TX_RATE_OFDM_24M )
+							LastRxRate.field.MCS = 4;
+						else if ( rate_r == TMI_TX_RATE_OFDM_36M )
+							LastRxRate.field.MCS = 5;
+						else if ( rate_r == TMI_TX_RATE_OFDM_48M )
+							LastRxRate.field.MCS = 6;
+						else if ( rate_r == TMI_TX_RATE_OFDM_54M )
+							LastRxRate.field.MCS = 7;
+						else
+							LastRxRate.field.MCS = 0;
+						snprintf(tmp_str+strlen(tmp_str),temp_str_len-strlen(tmp_str),"%d",LastRxRate.field.MCS);
+					} else if ( phy_mode_r == MODE_CCK ) {	
+						if ( rate_r == TMI_TX_RATE_CCK_1M_LP )
+							LastRxRate.field.MCS = 0;
+						else if ( rate_r == TMI_TX_RATE_CCK_2M_LP )
+							LastRxRate.field.MCS = 1;
+						else if ( rate_r == TMI_TX_RATE_CCK_5M_LP )
+							LastRxRate.field.MCS = 2;
+						else if ( rate_r == TMI_TX_RATE_CCK_11M_LP )
+							LastRxRate.field.MCS = 3;
+						else if ( rate_r == TMI_TX_RATE_CCK_2M_SP )
+							LastRxRate.field.MCS = 1;
+						else if ( rate_r == TMI_TX_RATE_CCK_5M_SP )
+							LastRxRate.field.MCS = 2;
+						else if ( rate_r == TMI_TX_RATE_CCK_11M_SP )
+							LastRxRate.field.MCS = 3;
+						else
+							LastRxRate.field.MCS = 0;
+					}
+					getRate(LastTxRate, &DataRate);
+					getRate(LastRxRate, &DataRate_r);
+				}
+			}
+#endif /* RACTRL_FW_OFFLOAD_SUPPORT */	
+			snprintf(tmp_str,temp_str_len,"%d/%d",(int)DataRate,(int)DataRate_r);
+			sprintf(msg+strlen(msg),"%-10s\n", tmp_str);
 		}
 	}
-
 	/* for compatible with old API just do the printk to console*/
-	MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s", msg));
-	os_free_mem(msg);
-LabelOK:
+	wrq->u.data.length = strlen(msg);
+	if (copy_to_user(wrq->u.data.pointer, msg, wrq->u.data.length))
+	{
+		MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s: copy_to_user() fail\n", __FUNCTION__));
+	}
+	
+	os_free_mem( msg);
 
-	if (pMacTab != NULL)
-		os_free_mem(pMacTab);
 }
+
 
 #if defined(INF_AR9) || defined(BB_SOC)
 #if defined(AR9_MAPI_SUPPORT) || defined(BB_SOC)

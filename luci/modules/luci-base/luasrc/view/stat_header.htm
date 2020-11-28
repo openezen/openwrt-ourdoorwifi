@@ -1,0 +1,107 @@
+<script type="text/javascript">
+
+function pagerSet(selector){
+	selector.find('.toggle').click(function(){
+		var mode = /<%:View All%>/.test( $(this).text() );
+		selector.find('table').trigger( (mode ? 'disable' : 'enable') + ' .pager');
+		$(this).text( (mode ? '<%:View Pages%>' : '<%:View All%>'));
+		//return false;
+	});
+	selector.bind('pagerChange', function(){
+		$('.toggle').text('<%:View All%>');
+	});
+}
+
+function addParser() {
+	$.tablesorter.addParser({ 
+		// set a unique id 
+		id: 'datas', 
+		is: function(s) { 
+			// return false so this parser is not auto detected 
+			return false; 
+		}, 
+		format: function(s) { 
+			// format your data for normalization 
+			s = s.toLowerCase();
+			var value;
+			if(s.indexOf("p") != -1){
+				value = parseFloat(s.replace(/p/,''))*1000*1000*1000*1000*1000;
+			}else if(s.indexOf("t") != -1){
+				value = parseFloat(s.replace(/t/,''))*1000*1000*1000*1000;
+			}else if(s.indexOf("g") != -1){
+				value = parseFloat(s.replace(/g/,''))*1000*1000*1000;
+			}else if(s.indexOf("m") != -1){
+				value = parseFloat(s.replace(/m/,''))*1000*1000;
+			}else if(s.indexOf("k") != -1){
+				value = parseFloat(s.replace(/k/,''))*1000;
+			}else{
+				value = parseFloat(s);
+			}
+			return value; 
+		}, 
+		// set type, either numeric or text 
+		type: 'numeric' 
+	});
+}
+
+function tableSorterForAll(selector, callback){
+	var $table = $(selector).find("table");
+	
+	var output_str, isHostState = false;
+	if (selector.indexOf("hoststat") != -1) {
+		output_str = '{startRow} - {endRow} <%:of%> {totalRows} <%:hosts online%>';
+		isHostState = true;
+	}
+	else if (selector.indexOf("appstat") != -1) {
+		output_str = '{startRow} - {endRow} <%:of%> {totalRows} <%:app class%>';
+	}
+	else if (selector.indexOf("qqonlinelist") != -1) {
+		output_str = '{startRow} - {endRow} <%:of%> {totalRows} <%:QQ Online%>';
+	}
+	else {
+		output_str = '{startRow} - {endRow} <%:of%> {totalRows} <%:rows%>';
+	}
+	
+		
+	var pagerOptions = {
+		container: $(".pager"),
+		output: output_str
+	};
+	
+	addParser();
+
+	$table.tablesorter({
+		theme: 'blue',
+		widthFixed: true,
+		widgets: ['zebra'],
+		sortList: isHostState ? [[4,1]] : [[2,1]],
+		headers: { 
+			1: { 
+				sorter:'datas' 
+			},
+			2: { 
+				sorter:'datas' 
+			},
+			3: { 
+				sorter:'datas' 
+			},
+			4: { 
+				sorter:'datas' 
+			},
+			5: { 
+				sorter:'datas' 
+			},
+			6: { 
+				sorter:'datas' 
+			}
+		} 
+	}).tablesorterPager(pagerOptions);
+
+	//pagerSet($(selector));
+	
+	if(typeof callback === 'function'){
+		callback();
+	}
+}
+
+</script>

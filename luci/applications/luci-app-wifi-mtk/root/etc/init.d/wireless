@@ -1,0 +1,21 @@
+#!/bin/sh /etc/rc.common
+# xiaguohua
+# 2014/6/11
+
+START=70
+
+boot() {
+	wifi up
+}
+
+start() {
+	return
+}
+
+stop() {
+	return
+}
+
+restart() {
+	wifi up
+}

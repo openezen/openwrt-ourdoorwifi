@@ -79,8 +79,8 @@ local tpl_radio = tpl.Template(nil, [[
 				<div class="td middle cbi-section-actions">
 					<div>
 						<input type="button" class="cbi-button cbi-button-neutral" title="<%:Restart radio interface%>" value="<%:Restart%>" data-radio="<%=dev:name()%>" onclick="wifi_restart(event)" />
-						<input type="button" class="cbi-button cbi-button-action important" title="<%:Find and join network%>" value="<%:Scan%>" onclick="cbi_submit(this, 'device', '<%=dev:name()%>', '<%=url('admin/network/wireless_join')%>')" />
-						<input type="button" class="cbi-button cbi-button-add" title="<%:Provide new network%>" value="<%:Add%>" onclick="cbi_submit(this, 'device', '<%=dev:name()%>', '<%=url('admin/network/wireless_add')%>')" />
+						<input type="button" class="cbi-button cbi-button-action important" title="<%:Find and join network%>" value="<%:Scan%>" <% if vendor == "ralink" then %> disabled <% end %> onclick="cbi_submit(this, 'device', '<%=dev:name()%>', '<%=url('admin/network/wireless_join')%>')" />
+						<input type="button" class="cbi-button cbi-button-add" title="<%:Provide new network%>" value="<%:Add%>" <% if vendor == "ralink" then %> disabled <% end %> onclick="cbi_submit(this, 'device', '<%=dev:name()%>', '<%=url('admin/network/wireless_add')%>')" />
 					</div>
 				</div>
 			</div>
@@ -109,7 +109,7 @@ local tpl_radio = tpl.Template(nil, [[
 							<input type="button" class="cbi-button cbi-button-action important" onclick="location.href='<%=net:adminlink()%>'" title="<%:Edit this network%>" value="<%:Edit%>" />
 
 							<input name="cbid.wireless.<%=net:name()%>.__delete__" type="hidden" value="" />
-							<input name="cbi.apply" type="submit" class="cbi-button cbi-button-negative" title="<%:Delete this network%>" value="<%:Remove%>" onclick="wifi_delete(event)" />
+							<input name="cbi.apply" type="submit" class="cbi-button cbi-button-negative" title="<%:Delete this network%>" value="<%:Remove%>" <% if vendor == "ralink" then %> disabled <% end %> onclick="wifi_delete(event)" />
 						</div>
 					</div>
 				</div>
@@ -144,16 +144,19 @@ if not has_iwinfo then
 	end
 end
 
+
+
 local _, dev, net
 for _, dev in ipairs(ntm:get_wifidevs()) do
 	s = m:section(TypedSection)
 	s.wnets = dev:get_wifinets()
 
-	function s.render(self, sid)
+	function s.render(self, sid)		
 		tpl_radio:render({
 			hw = guess_wifi_hw(dev),
 			dev = dev,
-			wnets = self.wnets
+			wnets = self.wnets,
+			vendor = dev:get("vendor")			
 		})
 	end
 

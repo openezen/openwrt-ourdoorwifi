@@ -27,11 +27,8 @@ enable_mt7615e5() {
 
 detect_mt7615e5() {
 #	detect_ralink_wifi mt7615 mt7615
-	local class vendor bindif ssid
-	ssid=mt7615-`ifconfig eth0 | grep HWaddr | cut -c 51- | sed 's/://g'`
 	cd /sys/module/
 	[ -d $module ] || return
-#	[ -e /etc/config/wireless ] && return
 	
 	[ -f /etc/Wireless/mt7615/mt7615e5.dat ] || {
 		mkdir -p /etc/Wireless/mt7615/ 2>/dev/null
@@ -39,15 +36,6 @@ detect_mt7615e5() {
 		ln -s /tmp/mt7615e5.dat /etc/Wireless/mt7615/mt7615e5.dat 2>/dev/null
 	}
 
-	vendor=$(cat /etc/product_info | grep "PRODUCT_VENDOR" | awk -F= '{print $2}') 
-	
-	class=$(uci get product_params.class.product_class)
-
-	if [ "$class" == "ap" ]; then
-		bindif="wan"
-	else
-		bindif="lan"
-	fi
 
          cat <<EOF
 config wifi-device      mt7615e5
@@ -94,7 +82,7 @@ config wifi-device      mt7615e5
 config wifi-iface main_5g
         option device   mt7615e5
         option ifname   rai0
-        option network  $bindif
+        option network  lan
         option mode     ap
         option ssid 'Outdoor-wifi-5G'
 		option encryption none
@@ -104,7 +92,7 @@ config wifi-iface main_5g
 config wifi-iface guest_5g
         option device   mt7615e5
         option ifname   rai1
-        option network  $bindif
+        option network  lan
         option mode     ap
         option ssid 'Outdoor-wifi-5G'
         option encryption none

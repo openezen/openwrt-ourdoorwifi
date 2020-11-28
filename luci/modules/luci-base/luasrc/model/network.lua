@@ -255,6 +255,7 @@ local function _wifi_netid_by_sid(sid)
 	local t, n = _uci:get("wireless", sid)
 	if t == "wifi-iface" and n ~= nil then
 		local radioname = _uci:get("wireless", n, "device")
+		local ifacename = _uci:get("wireless", n, "ifname")
 		if type(radioname) == "string" then
 			local i, netid = 0, nil
 
@@ -269,7 +270,7 @@ local function _wifi_netid_by_sid(sid)
 					end
 				end)
 
-			return netid, radioname
+			return netid, radioname, ifacename
 		end
 	end
 end
@@ -1643,7 +1644,7 @@ end
 wifinet = utl.class()
 
 function wifinet.__init__(self, name, data)
-	local sid, netid, radioname, radiostate, netstate
+	local sid, netid, radioname, radiostate, netstate, ifacename
 
 	-- lookup state by radio#.network# notation
 	sid = _wifi_sid_by_netid(name)
@@ -1664,7 +1665,7 @@ function wifinet.__init__(self, name, data)
 				netid = _wifi_netid_by_sid(sid)
 			else
 				-- no state available, try to resolve from uci
-				netid, radioname = _wifi_netid_by_sid(name)
+				netid, radioname, ifacename = _wifi_netid_by_sid(name)
 				if netid and radioname then
 					sid = name
 				end
@@ -1675,6 +1676,7 @@ function wifinet.__init__(self, name, data)
 	local iwinfo =
 		(netstate and _wifi_iwinfo_by_ifname(netstate.ifname)) or
 		(radioname and _wifi_iwinfo_by_ifname(radioname)) or
+		(ifacename and _wifi_iwinfo_by_ifname(ifacename)) or
 		{ ifname = (netid or sid or name) }
 
 	self.sid       = sid or name

@@ -1,0 +1,32 @@
+#!/bin/sh
+# xiaguohua
+. /etc/functions.sh
+
+[ "$ACTION" != "ifup" ] && return
+[ "$INTERFACE" == "wwan_2g" ] && return
+[ "$INTERFACE" == "wwan_5g" ] && return
+
+
+local radio_devs
+
+scan_config() {
+	local section=$1
+	local disabled network wdev
+	
+	config_get disabled $section disabled
+	config_get network $section network
+	config_get wdev $section device
+	
+	[ "$disabled" == "1" ] && return
+
+	[ "$network" == "$INTERFACE" ] && append radio_devs "$wdev" "$N"
+}
+
+
+if [ -f /etc/config/wireless ]; then
+	config_load wireless
+
+	config_foreach scan_config wifi-iface
+
+	[ -n "$radio_devs" ] && wifi up
+fi
